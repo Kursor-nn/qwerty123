@@ -1,0 +1,68 @@
+version: "3"
+
+services:
+
+  web-proxy:
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - app
+
+  app:
+    build: ./app/
+    image: python3.9-slim:latest
+    env_file:
+      - ./app/.env
+    volumes:
+      - ./app:/app
+    command: python app.py
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      database:
+        condition: service_started
+    restart: on-failure
+
+  webui:
+    build: ./app/
+    image: python3.9-slim:latest
+    env_file:
+      - ./app/.env
+    volumes:
+      - ./app/:/app
+    command: streamlit run ./home.py --server.port=8501 --server.address=0.0.0.0
+    depends_on:
+      app:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    restart: on-failure
+
+  rabbitmq:
+    image: rabbitmq:3.13.3-management
+    hostname: rabbitmq
+    restart: on-failure
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
+    volumes:
+      - ./rabbitmqdata:/var/lib/rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+
+  database:
+    image: postgres:13.3
+    hostname: database
+    environment:
+      POSTGRES_DB: productdb
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: postgres
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./postgresdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
