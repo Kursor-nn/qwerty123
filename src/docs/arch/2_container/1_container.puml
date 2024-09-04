@@ -1,0 +1,56 @@
+@startuml
+!include ../../common/C4_Container.puml
+
+Person(user, "User", "user", $sprite="user")
+System_Ext(prometheus, "Monitoring System", "Prometheus")
+System_Ext(llm, "LLM", "Extrnal LLM")
+System_Ext(prometheus, "Prometheus", "Prometheus")
+
+Container_Boundary(core_system, "LLM Guard"){
+
+    Container_Boundary(queue_container, "Message Queue", "RabbitMQ") {
+        SystemQueue(request_mqm, "Request Queue", "RabbitMQ")
+    }
+
+
+    Container_Boundary(api_gateway_container, "API Gateway", "NGINX") {
+        Container(nginx, "User Data", "Nginx", "Single API", $sprite="java")
+    }
+
+    Container_Boundary(user_container, "User data") {
+        Container(user_service, "User Backend", "Python/FastAPI", "Collect, store and provide user configuration data")
+        Container(user_webui_service, "User UI", "Python/StreamLit", "WebUI for users")
+        ContainerDb(postgres, "Database", "PostgreSql", "Store all user data")
+        Rel(user_webui_service, user_service, "Read/Write")
+        Rel(user_service, postgres, "Read/Write")
+    }
+
+    Container_Boundary(request_filter_containers, "Request Filters Data") {
+        Container(toxic_service, "Toxic Service", "Python/FastAPI/ML", "Toxicity Detector")
+        Container(topic_cls_service, "Topic Classifier Service", "Python/FastAPI/ML", "Topic Classifier")
+        Container(etc_filter_sericce, "Etc filter", "Python/FastAPI/ML", "Extra filters")
+    }
+
+    Container_Boundary(filter_api_container, "LLM Request Filter API") {
+        Container(filter_api_service, "Filter API Backend", "Python/FastAPI", "Validate and filter requests")
+        Rel(filter_api_service, request_mqm, "Sync Read/Write")
+    }
+
+    Container_Boundary(llm_adapter_container, "LLM Adapter API") {
+        Container(llm_adapter_service, "LLM Adapter API Service", "Python/FastAPI", "Send Requests to LLM")
+    }
+}
+
+Rel(user, nginx, "HTTP/HTTPS", "Read/Write")
+
+Rel(nginx, user_webui_service, "HTTP/HTTPS", "Read/Write")
+Rel(nginx, filter_api_service, "HTTP/HTTPS", "Read/Write")
+
+Rel(request_mqm, request_filter_containers, "Read/Write")
+
+Rel(filter_api_service, llm_adapter_container, "Read/Write")
+Rel_L(filter_api_service, prometheus, "Read/Write")
+Rel_L(llm_adapter_container, llm, "Read/Write")
+
+SHOW_LEGEND()
+@enduml

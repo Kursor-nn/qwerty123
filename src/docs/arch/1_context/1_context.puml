@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+
+Person(user, "User", "user")
+
+Container_Boundary(core_system, "LLM Guard"){
+    Container_Boundary(api_gateway_container, "API Gateway", "NGINX") {
+        Container(nginx, "User Data", "Nginx", "Single API", $sprite="service_application")
+    }
+
+
+    Container_Boundary(user_data_container, "User data") {
+        Container(user_data_service, "User Data", "Python/FastAPI", "Collect, store and provide user configuration data")
+        ContainerDb(postgres, "Database", "PostgreSql", "Store all user data")
+        Rel(user_data_service, postgres, "Read/Write")
+    }
+}
+
+SHOW_LEGEND()
+@enduml
