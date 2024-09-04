@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from core.auth.hash_password import HashPassword
 from core.auth.jwt_handler import create_access_token
 from core.component import user_component as UserComponent
+from core.component.user_component import get_user_by_login
 from core.database.database import get_session
 from core.routes.dto.RegUserDto import NewUser, SuccessResponse, TokenResponse, SigninRequest
 
@@ -54,7 +55,7 @@ async def sign_user_in(
         request: SigninRequest,
         session=Depends(get_session)
 ) -> dict:
-    user_exist = UserComponent.get_user_by_login(request.login, session)
+    user_exist = get_user_by_login(request.login, session)
 
     if user_exist is None: raise USER_IS_NOT_EXIST
 

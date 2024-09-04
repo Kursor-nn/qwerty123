@@ -12,6 +12,7 @@ make_sidebar()
 
 access_token = get_cookie_manager().get("access_token")
 
+
 def password_entered():
     data = {
         "login": username,
@@ -72,7 +73,7 @@ if not access_token or access_token == "":
             else:
                 message = result.json()
                 st.write(message)
-else :
+else:
     casual = np.random.randint(0, 101, size=24)
     toxic = np.random.randint(-101, 1, size=24)
 
@@ -84,5 +85,46 @@ else :
     st.text("Toxic messages 24 hour dynamic")
     st.bar_chart(chart_data, color=["#FF0000"])
 
+    st.text(f"Notifications Stats")
 
+    df = pd.DataFrame(
+        {
+            "Notification Service": ["Telegram", "Emails"],
+            "Status": ["Enabled", "Disabled"],
+            "Today": [np.random.randint(0, 1000) for _ in range(2)],
+            "Toxic today": [np.random.randint(0, 1000) for _ in range(2)],
+            "Threshold per hours": [np.random.randint(0, 1000) for _ in range(2)],
+            "Notification History": [[np.random.randint(0, 5000) for _ in range(30)] for _ in range(2)],
+        }
+    )
+    st.dataframe(
+        df,
+        column_config={
+            "name": "App name",
+            "stars": st.column_config.NumberColumn(
+                "Github Stars",
+                help="Number of stars on GitHub",
+                format="%d ⭐",
+            ),
+            "Notification History": st.column_config.LineChartColumn(
+                "Views (past 30 days)", y_min=0, y_max=5000
+            ),
+        },
+        hide_index=True,
+    )
 
+    st.text(f"Toxic clients")
+
+    df = pd.DataFrame(
+        [
+            {"client id": "1", "toxic": 1, "normal": 100, "recommendation": "to disable",
+             "toxic history": [np.random.randint(0, 5000) for _ in range(30)]},
+            {"client id": "2", "toxic": 12, "normal": 1000, "recommendation": "n/a",
+             "toxic history": [np.random.randint(0, 5000) for _ in range(30)]},
+        ]
+    )
+    edited_df = st.data_editor(df, column_config={
+        "toxic history": st.column_config.LineChartColumn(
+            "Views (past 30 days)", y_min=0, y_max=5000
+        ),
+    })

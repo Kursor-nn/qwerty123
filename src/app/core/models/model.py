@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, Text
 
 from core.database.database import Base, engine
 
@@ -17,6 +17,19 @@ class User(Base):
         self.email = email
         self.role = role
         self.password = password
+
+
+class NotificationConfig(Base):
+    __tablename__ = "notification_config"
+    id = Column(Integer, primary_key=True, nullable=False)
+    userId = Column(Integer, ForeignKey("susers.id"))
+    enabled = Column(Boolean, nullable=False)
+    configuration = Column(Text, nullable=False)
+
+    def __init__(self, user_id, configuration):
+        super().__init__()
+        self.user_id = user_id
+        self.configuration = configuration
 
 
 if __name__ == "__main__":

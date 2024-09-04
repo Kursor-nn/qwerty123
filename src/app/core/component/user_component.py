@@ -3,10 +3,6 @@ from sqlmodel import Session
 from core.models.model import User
 
 
-def get_user_by_id(id: int, session: Session) -> User:
-    return session.query(User).where(User.id == id).one_or_none()
-
-
 def get_user_by_login(login: str, session: Session) -> User:
     return session.query(User).where(User.login == login).one_or_none()
 
