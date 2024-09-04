@@ -1,9 +1,10 @@
 from sqlmodel import Session
 
+from core.database.database import get_session
 from core.models.model import User
 
 
-def get_user_by_login(login: str, session: Session) -> User:
+def get_user_by_login(login: str, session: Session = get_session()) -> User:
     return session.query(User).where(User.login == login).one_or_none()
 
 

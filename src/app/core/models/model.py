@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, Text
+from sqlalchemy import Column, String, Integer, Boolean, Text, ForeignKey
 
 from core.database.database import Base, engine
 
@@ -19,17 +19,33 @@ class User(Base):
         self.password = password
 
 
-class NotificationConfig(Base):
-    __tablename__ = "notification_config"
+class UserFeaturesConfig(Base):
+    __tablename__ = "user_features"
     id = Column(Integer, primary_key=True, nullable=False)
-    userId = Column(Integer, ForeignKey("susers.id"))
     enabled = Column(Boolean, nullable=False)
-    configuration = Column(Text, nullable=False)
+    user_id = Column(Integer, ForeignKey("susers.id"))
+    feature_type_id = Column(Integer, ForeignKey("features.id"))
 
-    def __init__(self, user_id, configuration):
+    def __init__(self, user_id, enabled, feature_type_id):
         super().__init__()
         self.user_id = user_id
-        self.configuration = configuration
+        self.enabled = enabled
+        self.feature_type_id = feature_type_id
+
+
+class FeaturesConfig(Base):
+    __tablename__ = "features"
+    id = Column(Integer, primary_key=True, nullable=False)
+    enabled = Column(Boolean, nullable=False)
+    name = Column(Text, nullable=False)
+    type = Column(Text, nullable=False)
+
+    def __init__(self, user_id, enabled, name, type):
+        super().__init__()
+        self.user_id = user_id
+        self.enabled = enabled
+        self.name = name
+        self.type = type
 
 
 if __name__ == "__main__":

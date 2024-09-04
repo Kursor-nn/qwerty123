@@ -1,8 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 
+from api.dto.FeatureToggleDto import FeatureToggleDto
+from api.dto.ProfileDto import ProfileInfo
+from core.auth.authenticate import authenticate
 from core.auth.hash_password import HashPassword
 from core.auth.jwt_handler import create_access_token
 from core.component import user_component as UserComponent
+from core.component.profile_component import toggle_feature, get_features
 from core.component.user_component import get_user_by_login
 from core.database.database import get_session
 from core.routes.dto.RegUserDto import NewUser, SuccessResponse, TokenResponse, SigninRequest
@@ -64,3 +68,21 @@ async def sign_user_in(
         return {"access_token": access_token, "token_type": "Bearer"}
 
     raise USER_CREDS_ARE_WRONG
+
+
+@user_router.get("/profile", response_model=ProfileInfo)
+async def profile(
+        user: str = Depends(authenticate)
+) -> ProfileInfo:
+    return ProfileInfo(
+        username=user, features=[data.__dict__ for data in get_features(user)]
+    )
+
+
+@user_router.post("/profile/feature", status_code=200)
+async def profile(
+        feature_toggle: FeatureToggleDto,
+        user: str = Depends(authenticate)
+):
+    print("feature_toggle", feature_toggle)
+    toggle_feature(user, feature_toggle.feature_type_id, feature_toggle.value)
