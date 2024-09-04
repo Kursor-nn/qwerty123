@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.database.database import conn, init_db
+from core.database.database import conn
 from core.routes.users import user_router
 
 app = FastAPI()

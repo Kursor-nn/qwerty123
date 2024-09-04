@@ -84,5 +84,4 @@ async def profile(
         feature_toggle: FeatureToggleDto,
         user: str = Depends(authenticate)
 ):
-    print("feature_toggle", feature_toggle)
     toggle_feature(user, feature_toggle.feature_type_id, feature_toggle.value)

@@ -11,12 +11,14 @@ services:
       - app
 
   app:
-    build: ./app/
+    build: ./guard/app/
     image: python3.9-slim:latest
     env_file:
-      - ./app/.env
+      - ./guard/app/.env
     volumes:
-      - ./app:/app
+      - ./guard/app:/app
+    environment:
+      - PYTHONPATH=/app
     command: python app.py
     depends_on:
       rabbitmq:
@@ -25,14 +27,54 @@ services:
         condition: service_started
     restart: on-failure
 
-  webui:
-    build: ./app/
+  llm-guardapi:
+    build: ./guard/guardapi/
     image: python3.9-slim:latest
     env_file:
-      - ./app/.env
+      - ./guard/guardapi/.env
     volumes:
-      - ./app/:/app
-    command: streamlit run ./home.py --server.port=8501 --server.address=0.0.0.0
+      - ./guard:/app
+    command: python guardapi/app.py
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=admin
+      - RABBIT_PASSWORD=admin
+      - RABBIT_QUEUE=message
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    restart: on-failure
+
+  llm-guard-default-filter:
+    build: ./guard/guardapi/
+    image: python3.9-slim:latest
+    env_file:
+      - ./guard/guardapi/.env
+    volumes:
+      - ./guard:/app
+    command: python guardapi/core/queue/rmworkers.py
+    environment:
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=admin
+      - RABBIT_PASSWORD=admin
+      - RABBIT_QUEUE=message
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      database:
+        condition: service_started
+    restart: on-failure
+
+  webui:
+    build: ./guard/app/
+    image: python3.9-slim:latest
+    env_file:
+      - ./guard/app/.env
+    volumes:
+      - ./guard/:/app
+    command: streamlit run app/home.py --server.port=8501 --server.address=0.0.0.0
     depends_on:
       app:
         condition: service_started

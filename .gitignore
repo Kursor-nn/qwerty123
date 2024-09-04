@@ -2,3 +2,4 @@
 .idea
 .venv
 src/app/.env
+out
