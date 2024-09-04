@@ -1,20 +1,20 @@
 @startuml
-!include <C4/C4_Container>
+!include ../../common/C4_Context.puml
+!include ../../common/C4_Container.puml
+!include ../../common/tags.puml
+
+title System Context
 
 Person(user, "User", "user")
 
-Container_Boundary(core_system, "LLM Guard"){
-    Container_Boundary(api_gateway_container, "API Gateway", "NGINX") {
-        Container(nginx, "User Data", "Nginx", "Single API", $sprite="service_application")
-    }
+System(core_system, "Core system", "Control and monitoring system")
 
+System_Ext(llm, "LLM", "LLM")
+System_Ext(notifications, "notification service", "telegram/emails")
 
-    Container_Boundary(user_data_container, "User data") {
-        Container(user_data_service, "User Data", "Python/FastAPI", "Collect, store and provide user configuration data")
-        ContainerDb(postgres, "Database", "PostgreSql", "Store all user data")
-        Rel(user_data_service, postgres, "Read/Write")
-    }
-}
+Rel(user, core_system, "Usecase", "System configuration")
+Rel_L(core_system, llm, "Usecase", "Read/Write data", $tags="external")
+Rel_R(core_system, notifications,"Usecase", "Read/Write data", $tags="external")
 
 SHOW_LEGEND()
 @enduml

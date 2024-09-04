@@ -5,6 +5,8 @@ Person(user, "User", "user", $sprite="user")
 System_Ext(prometheus, "Monitoring System", "Prometheus")
 System_Ext(llm, "LLM", "Extrnal LLM")
 System_Ext(prometheus, "Prometheus", "Prometheus")
+System_Ext(telegram, "Telegram", "Notification to telegram service")
+System_Ext(email, "Email", "Notification to email")
 
 Container_Boundary(core_system, "LLM Guard"){
 
@@ -39,6 +41,14 @@ Container_Boundary(core_system, "LLM Guard"){
     Container_Boundary(llm_adapter_container, "LLM Adapter API") {
         Container(llm_adapter_service, "LLM Adapter API Service", "Python/FastAPI", "Send Requests to LLM")
     }
+
+    Container_Boundary(notification_container, "Notifications") {
+        Container(notification_monitoring_service, "Monitoring Notification Service", "Python/FastAPI", "Send Notifications")
+        Container(adapter_notification_service, "Adapter Notification Service", "Python/FastAPI", "Send Notifications")
+
+        Rel(request_mqm, adapter_notification_service, "Notifications")
+        Rel(notification_monitoring_service, request_mqm, "Notifications")
+    }
 }
 
 Rel(user, nginx, "HTTP/HTTPS", "Read/Write")
@@ -51,6 +61,9 @@ Rel(request_mqm, request_filter_containers, "Read/Write")
 Rel(filter_api_service, llm_adapter_container, "Read/Write")
 Rel_L(filter_api_service, prometheus, "Read/Write")
 Rel_L(llm_adapter_container, llm, "Read/Write")
+
+Rel(notification_monitoring_service, telegram, "Write")
+Rel(adapter_notification_service, email, "Write")
 
 SHOW_LEGEND()
 @enduml
