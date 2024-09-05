@@ -37,3 +37,4 @@ streamlit-cookies-controller
 pytest==8.1.1
 bcrypt
 pyliquibase==2.3.0
+prometheus-client

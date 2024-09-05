@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import start_http_server
 
 from core.routes.messages import message_router
 
@@ -18,4 +19,5 @@ app.add_middleware(
 app.include_router(message_router, prefix="/api/guard")
 
 if __name__ == "__main__":
+    start_http_server(8082)
     uvicorn.run("app:app", host="0.0.0.0", port=8081, reload=True)

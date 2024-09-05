@@ -1,7 +1,11 @@
 from fastapi import APIRouter, HTTPException, status
+from prometheus_client import Counter
 
 from api.dto.api_dto import InputTextDto, ValidationResultsDto, FilterResultDto
 from guardapi.core.component import filter_component
+
+input_validation_requests = Counter('input_validation_requests', 'Input validation requests')
+toxic_text = Counter('input_toxic_text', 'Number of toxic requests')
 
 message_router = APIRouter(tags=["Messages"])
 
@@ -26,7 +30,13 @@ USER_CREDS_ARE_WRONG = HTTPException(
 async def validate(
         request: InputTextDto
 ) -> ValidationResultsDto:
+    input_validation_requests.inc()
+
     results = filter_component.validate(request.text)
+
+    if results.is_toxic:
+        toxic_text.inc()
+
     return ValidationResultsDto(is_toxic=results.is_toxic, details=[
         FilterResultDto(is_toxic=results.is_toxic, name=results.filter)
     ])
