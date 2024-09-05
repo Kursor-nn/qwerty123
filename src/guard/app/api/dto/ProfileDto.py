@@ -47,13 +47,15 @@ class UserFeatureDto(BaseModel):
     name: Union[str, None] = None
     type: Union[str, None] = None
     enabled: bool = True
+    config: Union[str, None] = None
 
-    def __init__(self, feature_type_id, name, type, enabled, **data: Any):
+    def __init__(self, feature_type_id, name, type, enabled, config, **data: Any):
         super().__init__(**data)
         self.name = name
         self.feature_type_id = feature_type_id
         self.enabled = enabled
         self.type = type
+        self.config = config
 
 
 class ProfileInfo(BaseModel):

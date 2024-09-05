@@ -25,12 +25,14 @@ class UserFeaturesConfig(Base):
     enabled = Column(Boolean, nullable=False)
     user_id = Column(Integer, ForeignKey("susers.id"))
     feature_type_id = Column(Integer, ForeignKey("features.id"))
+    config = Column(Text)
 
-    def __init__(self, user_id, enabled, feature_type_id):
+    def __init__(self, user_id, enabled, feature_type_id, config: str = None):
         super().__init__()
         self.user_id = user_id
         self.enabled = enabled
         self.feature_type_id = feature_type_id
+        self.config = config
 
 
 class FeaturesConfig(Base):

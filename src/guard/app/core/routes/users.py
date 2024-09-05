@@ -1,15 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 
-from api.dto.FeatureToggleDto import FeatureToggleDto
 from api.dto.ProfileDto import ProfileInfo
+from api.dto.features_dto import FeatureToggleDto
 from core.auth.authenticate import authenticate
 from core.auth.hash_password import HashPassword
 from core.auth.jwt_handler import create_access_token
 from core.component import user_component as UserComponent
-from core.component.profile_component import toggle_feature, get_features
+from core.component.profile_component import toggle_feature, get_features, get_feature_by_id
 from core.component.user_component import get_user_by_login
 from core.database.database import get_session
 from core.routes.dto.RegUserDto import NewUser, SuccessResponse, TokenResponse, SigninRequest
+from core.service.feature_togle_service import create_contact, delete_contact
 
 user_router = APIRouter(tags=["User"])
 hash_password = HashPassword()
@@ -84,4 +85,11 @@ async def profile(
         feature_toggle: FeatureToggleDto,
         user: str = Depends(authenticate)
 ):
+    feature = get_feature_by_id(user, feature_toggle.feature_type_id)
+
+    if feature_toggle.value:
+        create_contact(user, feature.config, feature.name)
+    else:
+        delete_contact(user, feature.config, feature.name)
+
     toggle_feature(user, feature_toggle.feature_type_id, feature_toggle.value)

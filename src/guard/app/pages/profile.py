@@ -1,7 +1,7 @@
 import streamlit as st
 
 from core.cookies.cookies import get_cookie_manager
-from pages.api.user_profile import get_profile_info, toggle_feature
+from pages.api.user_profile import get_profile_info, toggle_feature, set_config
 from pages.common.navigation import make_sidebar
 
 make_sidebar()
@@ -18,13 +18,14 @@ profile_info = get_profile_info()
 filters = [i for i in profile_info.features if i.type == "filter"]
 notifications = [i for i in profile_info.features if i.type == "notification"]
 stats = [i for i in profile_info.features if i.type == "statis"]
+threshold = [i for i in profile_info.features if i.type == "threshold"]
 
 
 def change_value_for_stats(toggle_feature_id: str, value: bool):
     def inner():
-        x = toggle_feature_id
-        y = value
-        toggle_feature(x, y)
+        fid = toggle_feature_id
+        state = value
+        toggle_feature(fid, state)
 
     return inner
 
@@ -37,6 +38,39 @@ def build_check_box_for(label, values):
                     on_change=change_value_for_stats(item.feature_type_id, not item.enabled))
 
 
-build_check_box_for("Home page configuration", stats)
-build_check_box_for("Filters List", filters)
-build_check_box_for("Notifications", notifications)
+home_tab, filters_tab, notifications_tab, threshold_tab = st.tabs(["Home page configuration", "Filters List", "Notifications", "Threshold"])
+
+with home_tab:
+    build_check_box_for("Home page configuration", stats)
+
+with filters_tab:
+    build_check_box_for("Filters List", filters)
+
+with notifications_tab:
+    build_check_box_for("Notifications", notifications)
+    with st.popover("Add contact for notifications") as popup:
+        option = st.selectbox(
+            "How would you like to be contacted?",
+            set([i.name for i in notifications]),
+            index=None,
+            placeholder="Select contact method...",
+        )
+
+        st.write("You selected:", option)
+        address = st.text_input("Telegram chat name for notifications")
+        ftid = [i.feature_type_id for i in notifications if i.name == option]
+
+        st.button("Save", on_click=lambda: set_config(feature_type_id=ftid[0], value=address), use_container_width=True)
+
+    for i in notifications:
+        st.write(i.name, ":", i.config)
+
+with threshold_tab:
+    ftid = threshold[0].feature_type_id
+    threshold_state = st.checkbox(
+        "Notification Threshold", value=threshold[0].enabled, key=f"{threshold[0].name}-{threshold[0].feature_type_id}",
+        on_change=change_value_for_stats(threshold[0].feature_type_id, not threshold[0].enabled)
+    )
+    number = st.number_input("Toxic message threshold", min_value=10, max_value=5000, step=1)
+
+    st.button("Push", on_click=lambda: set_config(feature_type_id=ftid, value=number), use_container_width=True)

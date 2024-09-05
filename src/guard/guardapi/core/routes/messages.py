@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from prometheus_client import Counter
 
+from api.dto.alerts import AlertMessage
 from api.dto.api_dto import InputTextDto, ValidationResultsDto, FilterResultDto
 from guardapi.core.component import filter_component
 
@@ -24,6 +25,16 @@ USER_IS_NOT_EXIST = HTTPException(
 USER_CREDS_ARE_WRONG = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid details passed."
 )
+
+
+@message_router.post("/check", response_model=ValidationResultsDto)
+async def validate(
+        alarm: AlertMessage
+) -> ValidationResultsDto:
+    print(alarm.title, alarm.message)
+    return ValidationResultsDto(is_toxic=False, details=[
+        FilterResultDto(is_toxic=False, name="asdasd")
+    ])
 
 
 @message_router.post("/validate", response_model=ValidationResultsDto)
