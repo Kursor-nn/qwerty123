@@ -1,5 +1,8 @@
 **/__pycache__
+**/.DS_Store
+**/.ipynb_checkpoints
 .idea
 .venv
 src/app/.env
 out
+.cursorignore
