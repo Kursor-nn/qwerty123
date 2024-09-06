@@ -47,6 +47,7 @@ with filters_tab:
     build_check_box_for("Filters List", filters)
 
 with notifications_tab:
+    print(notifications)
     build_check_box_for("Notifications", notifications)
     with st.popover("Add contact for notifications") as popup:
         option = st.selectbox(
@@ -58,9 +59,9 @@ with notifications_tab:
 
         st.write("You selected:", option)
         address = st.text_input("Telegram chat name for notifications")
-        ftid = [i.feature_type_id for i in notifications if i.name == option]
+        nftid = [i.feature_type_id for i in notifications if i.name == option]
 
-        st.button("Save", on_click=lambda: set_config(feature_type_id=ftid[0], value=address), use_container_width=True)
+        st.button("Save", on_click=lambda: set_config(feature_type_id=nftid[0], value=address), use_container_width=True)
 
     for i in notifications:
         st.write(i.name, ":", i.config)

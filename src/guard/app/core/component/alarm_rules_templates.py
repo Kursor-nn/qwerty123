@@ -2,7 +2,8 @@ alert_template = """
 {
     "uid": "{USER-ALERT-RULE-ID}",
     "title": "{USER-ALERT-TITLE-ID}",
-    "condition": "B","folderUID": "cdx02ka6znn5se",
+    "condition": "B",
+    "folderUID": "fdx20qlg2xypsa",
     "data": [
         {
             "refId": "A",
@@ -14,7 +15,7 @@ alert_template = """
             "model": {
                 "disableTextWrap": false,
                 "editorMode": "builder",
-                "expr": "count_over_time(input_toxic_text_total[1m])",
+                "expr": "count_over_time(input_text_total{toxic_client_id=\\"{CLIENT_ID}\\"}[5m])",
                 "fullMetaSearch": false,
                 "includeNullMetadata": true,
                 "instant": true,
