@@ -1,4 +1,5 @@
-from core.component.monitoring_component import get_chat_id, create_telegram_contact, delete_telegram_contact
+from core.component.monitoring_component import create_telegram_contact, delete_telegram_contact
+from core.component.telegram_component import get_chat_id
 
 
 def create_contact(user: str, chat_name: str, type: str):

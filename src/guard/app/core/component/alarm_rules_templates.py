@@ -83,7 +83,7 @@ alert_template = """
     },
     "isPaused": false,
     "notification_settings": {
-        "receiver": "{USER-NOTIFICAITON-ID}"
+        "receiver": "{USER-NOTIFICATION-ID}"
     }
 }
 """

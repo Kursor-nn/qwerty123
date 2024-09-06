@@ -1,74 +1,59 @@
 import json
 
 import httpx
+from decouple import config
 
+from common_consts import GRAFANA_ENDPOINT, GRAFANA_SERVICE_TOKEN
 from core.component.alarm_rules_templates import alert_template
+
+grafana_endpoint = config(GRAFANA_ENDPOINT)
+grafana_service_token = config(GRAFANA_SERVICE_TOKEN)
+
+grafana_service_account_headers = {
+    "Authorization": "Bearer {grafana_service_token}",
+    "accept": "application/json",
+    "Content-Type": "application/json"
+}
 
 
 def delete_alarm_rule(rule_id: str):
     response = httpx.delete(
-        url=f"http://grafana:3000/api/v1/provisioning/alert-rules/{rule_id}",
-        headers={
-            "Authorization": "Bearer glsa_O30TNpVq9uXOZuS7gNw2u0VwEzYLRoot_cb8ae01e",
-            "accept": "application/json",
-            "Content-Type": "application/json"
-        })
+        url=f"{grafana_endpoint}/api/v1/provisioning/alert-rules/{rule_id}",
+        headers=grafana_service_account_headers)
 
     return response.status_code in (204, 500), "Rule is removed"
 
 
 def create_alarm_rule(rule_id: str, rule_title: str, notification_topic: str, client_id: str):
     request = alert_template.replace("{USER-ALERT-RULE-ID}", rule_id).replace("{USER-ALERT-TITLE-ID}", rule_title).replace(
-        "{USER-NOTIFICAITON-ID}", notification_topic).replace("{CLIENT_ID}", client_id)
+        "{USER-NOTIFICATION-ID}", notification_topic).replace("{CLIENT_ID}", client_id)
 
     response = httpx.post(
-        url="http://grafana:3000/api/v1/provisioning/alert-rules",
-        json=json.loads(request), headers={
-            "Authorization": "Bearer glsa_O30TNpVq9uXOZuS7gNw2u0VwEzYLRoot_cb8ae01e",
-            "accept": "application/json",
-            "Content-Type": "application/json"
-        })
+        url="{grafana_endpoint}/api/v1/provisioning/alert-rules",
+        json=json.loads(request), headers=grafana_service_account_headers)
 
-    responst_data = response.json()
-    if "message" in responst_data:
-        return True, response.json()["message"], rule_id
+    payload = response.json()
+    if "message" in payload:
+        return True, payload["message"], rule_id
     return True, "Contact is created", rule_id
 
 
 def get_alarm_rule_by_id(alarm_rule_id: str):
     response = httpx.get(
-        url=f"http://grafana:3000/api/v1/provisioning/alert-rules/{alarm_rule_id}",
-        headers={
-            "Authorization": "Bearer glsa_O30TNpVq9uXOZuS7gNw2u0VwEzYLRoot_cb8ae01e",
-            "accept": "application/json",
-            "Content-Type": "application/json"
-        })
+        url=f"{grafana_endpoint}/api/v1/provisioning/alert-rules/{alarm_rule_id}",
+        headers=grafana_service_account_headers)
     return response.json()
 
 
 def toggle_alarm_rule(alarm_rule_id: str, status: bool):
-    # request = {"isPaused": status}
-    currentstate = get_alarm_rule_by_id(alarm_rule_id)
-    currentstate["isPaused"] = status
+    current_state = get_alarm_rule_by_id(alarm_rule_id)
+    current_state["isPaused"] = status
 
     response = httpx.put(
-        url=f"http://grafana:3000/api/v1/provisioning/alert-rules/{alarm_rule_id}",
-        json=currentstate, headers={
-            "Authorization": "Bearer glsa_O30TNpVq9uXOZuS7gNw2u0VwEzYLRoot_cb8ae01e",
-            "accept": "application/json",
-            "Content-Type": "application/json"
-        })
+        url=f"{grafana_endpoint}/api/v1/provisioning/alert-rules/{alarm_rule_id}",
+        json=current_state, headers=grafana_service_account_headers)
 
-    responst_data = response.json()
-    if "message" in responst_data:
-        return True, response.json()["message"]
+    payload = response.json()
+    if "message" in payload:
+        return True, payload["message"]
     return True, "Contact is created"
-
-
-if __name__ == "__main__":
-    print(create_alarm_rule(
-        "alko-test-123",
-        "alko-test-123-title",
-        "test--1002200300374-notification",
-        "test",
-    ))

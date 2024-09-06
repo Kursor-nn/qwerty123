@@ -20,6 +20,14 @@ services:
       - ./guard/api:/api
     environment:
       - PYTHONPATH=/app:/api
+      - GRAFANA_ENDPOINT=http://grafana:3000
+      - COOKIE_NAME="cookie_name"
+      - RABBIT_HOST = "rabbitmq"
+      - RABBIT_PORT = "5672"
+      - RABBIT_USER = "admin"
+      - RABBIT_QUEUE = "message"
+      - BACKEND_HOST = "http://app:8081"
+      - DATA_ROOT_PATH = "/data"
     command: python app.py
     depends_on:
       rabbitmq:
@@ -36,14 +44,13 @@ services:
       - ./guard:/app
       - ./guard/api:/api
     command: python guardapi/app.py
+    env_file:
+      - ./guard/guardapi/.env
     environment:
-      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
-      - SECRET_KEY="123123"
       - COOKIE_NAME="cookie_name"
       - RABBIT_HOST=rabbitmq
       - RABBIT_PORT=5672
       - RABBIT_USER=admin
-      - RABBIT_PASSWORD=admin
       - RABBIT_QUEUE=message
       - PYTHONPATH=/app:/api
     depends_on:
@@ -58,14 +65,13 @@ services:
       - ./guard:/app
       - ./guard/api:/api
     command: python guardapi/core/queue/rmworkers.py
+    env_file:
+      - ./guard/guardapi/.env
     environment:
-      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
-      - SECRET_KEY="123123"
       - COOKIE_NAME="cookie_name"
       - RABBIT_HOST=rabbitmq
       - RABBIT_PORT=5672
       - RABBIT_USER=admin
-      - RABBIT_PASSWORD=admin
       - RABBIT_QUEUE=message
       - PYTHONPATH=/app:/api
     depends_on:
