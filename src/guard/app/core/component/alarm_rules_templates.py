@@ -3,7 +3,7 @@ alert_template = """
     "uid": "{USER-ALERT-RULE-ID}",
     "title": "{USER-ALERT-TITLE-ID}",
     "condition": "B",
-    "folderUID": "fdx20qlg2xypsa",
+    "folderUID": "cdwyfawljvnk0d",
     "data": [
         {
             "refId": "A",
@@ -39,7 +39,7 @@ alert_template = """
                     {
                         "evaluator": {
                             "params": [
-                                50,
+                                20,
                                 0
                             ],
                             "type": "gt"

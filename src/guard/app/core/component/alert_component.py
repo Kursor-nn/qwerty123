@@ -31,7 +31,6 @@ def create_alarm_rule(rule_id: str, rule_title: str, notification_topic: str, cl
 
     responst_data = response.json()
     if "message" in responst_data:
-        print(responst_data)
         return True, response.json()["message"], rule_id
     return True, "Contact is created", rule_id
 
@@ -73,4 +72,3 @@ if __name__ == "__main__":
         "test--1002200300374-notification",
         "test",
     ))
-    # print(delete_alarm_rule("edx095oz0zbb4a"))

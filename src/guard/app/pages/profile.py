@@ -47,7 +47,6 @@ with filters_tab:
     build_check_box_for("Filters List", filters)
 
 with notifications_tab:
-    print(notifications)
     build_check_box_for("Notifications", notifications)
     with st.popover("Add contact for notifications") as popup:
         option = st.selectbox(
@@ -67,11 +66,12 @@ with notifications_tab:
         st.write(i.name, ":", i.config)
 
 with threshold_tab:
-    ftid = threshold[0].feature_type_id
-    threshold_state = st.checkbox(
-        "Notification Threshold", value=threshold[0].enabled, key=f"{threshold[0].name}-{threshold[0].feature_type_id}",
-        on_change=change_value_for_stats(threshold[0].feature_type_id, not threshold[0].enabled)
-    )
-    number = st.number_input("Toxic message threshold", min_value=10, max_value=5000, step=1)
+    if len(threshold) > 0:
+        ftid = threshold[0].feature_type_id
+        threshold_state = st.checkbox(
+            "Notification Threshold", value=threshold[0].enabled, key=f"{threshold[0].name}-{threshold[0].feature_type_id}",
+            on_change=change_value_for_stats(threshold[0].feature_type_id, not threshold[0].enabled)
+        )
+        number = st.number_input("Toxic message threshold", min_value=10, max_value=5000, step=1)
 
-    st.button("Push", on_click=lambda: set_config(feature_type_id=ftid, value=number), use_container_width=True)
+        st.button("Push", on_click=lambda: set_config(feature_type_id=ftid, value=number), use_container_width=True)

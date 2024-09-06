@@ -4,7 +4,6 @@ from core.component.monitoring_component import get_chat_id, create_telegram_con
 def create_contact(user: str, chat_name: str, type: str):
     if type == "telegram" or "telegram" in type.lower():
         chat_id = get_chat_id(chat_name)
-        print(False, f"Chat {chat_name} is not found", chat_id)
         if chat_id is not None:
             return create_telegram_contact(user, chat_id)
         else:

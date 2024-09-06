@@ -79,5 +79,3 @@ if __name__ == "__main__":
                                                               "type": "channel"}, "date": 1725607789, "text": "test"}}]}
     value = [char for char in test["result"] if "channel_post" in char is not None if
              char["channel_post"]["sender_chat"]["title"] == "#йукен123"]
-
-    print(value[0])
