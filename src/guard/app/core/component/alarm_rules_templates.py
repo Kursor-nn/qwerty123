@@ -3,7 +3,7 @@ alert_template = """
     "uid": "{USER-ALERT-RULE-ID}",
     "title": "{USER-ALERT-TITLE-ID}",
     "condition": "B",
-    "folderUID": "cdwyfawljvnk0d",
+    "folderUID": "{FOLDER_UID}",
     "data": [
         {
             "refId": "A",

@@ -3,11 +3,12 @@ import json
 import httpx
 from decouple import config
 
-from common_consts import GRAFANA_ENDPOINT, GRAFANA_SERVICE_TOKEN
+from common_consts import GRAFANA_ENDPOINT, GRAFANA_SERVICE_TOKEN, GRAFANA_FOLDER_UID
 from core.component.alarm_rules_templates import alert_template
 
 grafana_endpoint = config(GRAFANA_ENDPOINT)
 grafana_service_token = config(GRAFANA_SERVICE_TOKEN)
+grafana_folder_uid = config(GRAFANA_FOLDER_UID)
 
 grafana_service_account_headers = {
     "Authorization": "Bearer {grafana_service_token}",
@@ -26,7 +27,7 @@ def delete_alarm_rule(rule_id: str):
 
 def create_alarm_rule(rule_id: str, rule_title: str, notification_topic: str, client_id: str):
     request = alert_template.replace("{USER-ALERT-RULE-ID}", rule_id).replace("{USER-ALERT-TITLE-ID}", rule_title).replace(
-        "{USER-NOTIFICATION-ID}", notification_topic).replace("{CLIENT_ID}", client_id)
+        "{USER-NOTIFICATION-ID}", notification_topic).replace("{CLIENT_ID}", client_id).replace("{FOLDER_UID}", grafana_folder_uid)
 
     response = httpx.post(
         url="{grafana_endpoint}/api/v1/provisioning/alert-rules",
