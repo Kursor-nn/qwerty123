@@ -6,11 +6,12 @@ from auth.authenticate import authenticate
 from auth.hash_password import HashPassword
 from auth.jwt_handler import create_access_token
 from core.component import user_component as UserComponent
-from core.component.profile_component import toggle_feature, get_features, get_feature_by_id
+from core.component.alert_component import create_alarm_rule, delete_alarm_rule
+from core.component.profile_component import get_features, get_feature_by_id, toggle_feature
 from core.component.user_component import get_user_by_login
 from core.database.database import get_session
 from core.routes.dto.RegUserDto import NewUser, SuccessResponse, TokenResponse, SigninRequest
-from core.service.feature_togle_service import create_contact, delete_contact
+from core.service.feature_togle_service import create_contact
 
 user_router = APIRouter(tags=["User"])
 hash_password = HashPassword()
@@ -86,10 +87,13 @@ async def profile(
         user: str = Depends(authenticate)
 ):
     feature = get_feature_by_id(user, feature_toggle.feature_type_id)
-
-    if feature_toggle.value:
-        create_contact(user, feature.config, feature.name)
-    else:
-        delete_contact(user, feature.config, feature.name)
+    _, _, contact_id = create_contact(user, feature.config, feature.name)
+    if contact_id:
+        if feature_toggle.value:
+            _, _, rule_id = create_alarm_rule(f"{user}-toxic-threshold-notification",
+                                              f"{user}-toxic-threshold-notification",
+                                              contact_id + "-notification", user)
+        else:
+            delete_alarm_rule(f"{user}-toxic-threshold-notification")
 
     toggle_feature(user, feature_toggle.feature_type_id, feature_toggle.value)

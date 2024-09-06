@@ -15,7 +15,7 @@ alert_template = """
             "model": {
                 "disableTextWrap": false,
                 "editorMode": "builder",
-                "expr": "count_over_time(input_text_total{toxic_client_id=\\"{CLIENT_ID}\\"}[5m])",
+                "expr": "count_over_time(input_toxic_text_total{toxic_client_id=\\"{CLIENT_ID}\\"}[1m])",
                 "fullMetaSearch": false,
                 "includeNullMetadata": true,
                 "instant": true,

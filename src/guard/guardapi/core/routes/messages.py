@@ -48,7 +48,6 @@ async def validate(
     results = validate_component.validate(request.text)
     all_texts.labels(user).inc()
 
-    print(all_texts.collect())
     if results.is_toxic:
         toxic_text.labels(user).inc()
 
