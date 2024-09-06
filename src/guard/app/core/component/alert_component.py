@@ -11,7 +11,7 @@ grafana_service_token = config(GRAFANA_SERVICE_TOKEN)
 grafana_folder_uid = config(GRAFANA_FOLDER_UID)
 
 grafana_service_account_headers = {
-    "Authorization": "Bearer {grafana_service_token}",
+    "Authorization": f"Bearer {grafana_service_token}",
     "accept": "application/json",
     "Content-Type": "application/json"
 }
