@@ -30,7 +30,7 @@ def create_alarm_rule(rule_id: str, rule_title: str, notification_topic: str, cl
         "{USER-NOTIFICATION-ID}", notification_topic).replace("{CLIENT_ID}", client_id).replace("{FOLDER_UID}", grafana_folder_uid)
 
     response = httpx.post(
-        url="{grafana_endpoint}/api/v1/provisioning/alert-rules",
+        url=f"{grafana_endpoint}/api/v1/provisioning/alert-rules",
         json=json.loads(request), headers=grafana_service_account_headers)
 
     payload = response.json()
