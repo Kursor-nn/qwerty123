@@ -3,7 +3,7 @@ import uuid
 import pika
 from decouple import config
 
-from api.const.const import RABBIT_QUEUE
+from common_consts import RABBIT_QUEUE
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",

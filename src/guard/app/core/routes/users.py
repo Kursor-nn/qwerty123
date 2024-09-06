@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException, Depends, status
 
 from api.dto.ProfileDto import ProfileInfo
 from api.dto.features_dto import FeatureToggleDto
-from core.auth.authenticate import authenticate
-from core.auth.hash_password import HashPassword
-from core.auth.jwt_handler import create_access_token
+from auth.authenticate import authenticate
+from auth.hash_password import HashPassword
+from auth.jwt_handler import create_access_token
 from core.component import user_component as UserComponent
 from core.component.profile_component import toggle_feature, get_features, get_feature_by_id
 from core.component.user_component import get_user_by_login

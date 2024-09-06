@@ -4,7 +4,7 @@ import pika
 from decouple import config
 from pydantic import ValidationError
 
-from api.const.const import RABBIT_QUEUE
+from common_consts import RABBIT_QUEUE
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",
@@ -47,7 +47,8 @@ def return_results(ch, method, properties):
         exchange='',
         routing_key=reply_to,
         properties=pika.BasicProperties(correlation_id=correlation_id),
-        body=json.dumps({"is_toxic": False, "filter": "success"})
+
+        body=json.dumps({"is_toxic": True, "filter": "success"})
     )
 
 

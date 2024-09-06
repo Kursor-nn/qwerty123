@@ -1,7 +1,7 @@
 import json
 
-from api.dto.message_request import ValidationResultMessage
-from guardapi.core.queue.rabbitapi import send_message2rabbit
+from core.queue.rabbitapi import send_message2rabbit
+from dto.message_request import ValidationResultMessage
 
 
 def validate(text: str) -> ValidationResultMessage:

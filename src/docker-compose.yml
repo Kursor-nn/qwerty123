@@ -17,8 +17,9 @@ services:
       - ./guard/app/.env
     volumes:
       - ./guard/app:/app
+      - ./guard/api:/api
     environment:
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app:/api
     command: python app.py
     depends_on:
       rabbitmq:
@@ -31,17 +32,20 @@ services:
     build: ./guard/guardapi/
     image: python3.9-slim:latest
     hostname: llm-guardapi
-    env_file:
-      - ./guard/guardapi/.env
     volumes:
       - ./guard:/app
+      - ./guard/api:/api
     command: python guardapi/app.py
     environment:
+      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
+      - SECRET_KEY="123123"
+      - COOKIE_NAME="cookie_name"
       - RABBIT_HOST=rabbitmq
       - RABBIT_PORT=5672
       - RABBIT_USER=admin
       - RABBIT_PASSWORD=admin
       - RABBIT_QUEUE=message
+      - PYTHONPATH=/app:/api
     depends_on:
       rabbitmq:
         condition: service_started
@@ -50,17 +54,20 @@ services:
   llm-guard-default-filter:
     build: ./guard/guardapi/
     image: python3.9-slim:latest
-    env_file:
-      - ./guard/guardapi/.env
     volumes:
       - ./guard:/app
+      - ./guard/api:/api
     command: python guardapi/core/queue/rmworkers.py
     environment:
+      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
+      - SECRET_KEY="123123"
+      - COOKIE_NAME="cookie_name"
       - RABBIT_HOST=rabbitmq
       - RABBIT_PORT=5672
       - RABBIT_USER=admin
       - RABBIT_PASSWORD=admin
       - RABBIT_QUEUE=message
+      - PYTHONPATH=/app:/api
     depends_on:
       rabbitmq:
         condition: service_started
