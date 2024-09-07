@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 from common_consts import RABBIT_QUEUE
 from core.component import catboost_bert_toxic_service
+from loguru import logger
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",
@@ -28,8 +29,7 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
-        data = body.decode('utf-8')
-        toxic_status = catboost_bert_toxic_service.check_toxic(data)
+        toxic_status = catboost_bert_toxic_service.check_toxic(body)
         return_results(ch, method, properties, toxic_status)
     except ValidationError as e:
         correlation_id = properties.correlation_id

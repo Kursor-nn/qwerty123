@@ -3,17 +3,32 @@ from time import sleep
 import streamlit as st
 
 from core.cookies.cookies import cookie_manager
+from pages.api import filter_profile
 
 
 def make_sidebar():
     access_token = cookie_manager.get("access_token")
     with st.sidebar:
         st.title("Йцукен123")
-        st.write("")
 
         if access_token or access_token != "":
             if st.button("Logout", type="primary"):
                 logout()
+
+            if "messages" not in st.session_state:
+                st.session_state.messages = []
+
+            if prompt := st.chat_input("What is up?"):
+                toxic_status = filter_profile.filter_validation(prompt)
+
+                with st.chat_message("AI Filter"):
+                    text = "Неприемлемо!!" if toxic_status else "Пропускаем =)"
+                    st.session_state.messages.append({"role": "user", "content": prompt})
+                    st.session_state.messages.append({"role": "AI", "content": text})
+
+            for message in st.session_state.messages[::-1]:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
 
 
 def logout():

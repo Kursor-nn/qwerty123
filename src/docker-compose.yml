@@ -66,6 +66,8 @@ services:
     volumes:
       - ./guard:/app
       - ./guard/api:/api
+      - ./guard/source/models:/models/
+      - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/core/queue/rmworkers.py
     env_file:
       - ./guard/guardapi/.env
@@ -75,7 +77,7 @@ services:
       - RABBIT_PORT=5672
       - RABBIT_USER=admin
       - RABBIT_QUEUE=message
-      - PYTHONPATH=/app:/api
+      - PYTHONPATH=/app:/api:/app/guardapi/
     depends_on:
       rabbitmq:
         condition: service_started
@@ -88,6 +90,9 @@ services:
     image: python3.9-slim:latest
     env_file:
       - ./guard/app/.env
+    environment:
+      - PYTHONPATH=/app:/api
+      - BACKEND_HOST = "http://app:8081"
     volumes:
       - ./guard/:/app
     command: streamlit run app/home.py --server.port=8501 --server.address=0.0.0.0
