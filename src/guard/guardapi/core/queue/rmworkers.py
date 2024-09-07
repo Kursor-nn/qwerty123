@@ -5,6 +5,7 @@ from decouple import config
 from pydantic import ValidationError
 
 from common_consts import RABBIT_QUEUE
+from core.component import catboost_bert_toxic_service
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",
@@ -27,7 +28,9 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
-        return_results(ch, method, properties)
+        data = body.decode('utf-8')
+        toxic_status = catboost_bert_toxic_service.check_toxic(data)
+        return_results(ch, method, properties, toxic_status)
     except ValidationError as e:
         correlation_id = properties.correlation_id
         reply_to = properties.reply_to
@@ -39,7 +42,7 @@ def prepare_data(ch, method, properties, body):
         )
 
 
-def return_results(ch, method, properties):
+def return_results(ch, method, properties, toxic_status):
     correlation_id = properties.correlation_id
     reply_to = properties.reply_to
 
@@ -48,7 +51,7 @@ def return_results(ch, method, properties):
         routing_key=reply_to,
         properties=pika.BasicProperties(correlation_id=correlation_id),
 
-        body=json.dumps({"is_toxic": True, "filter": "success"})
+        body=json.dumps({"is_toxic": toxic_status, "filter": "success"})
     )
 
 

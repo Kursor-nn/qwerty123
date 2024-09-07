@@ -43,6 +43,8 @@ services:
     volumes:
       - ./guard:/app
       - ./guard/api:/api
+      - ./guard/source/models:/models/
+      - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/app.py
     env_file:
       - ./guard/guardapi/.env

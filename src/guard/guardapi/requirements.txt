@@ -39,3 +39,6 @@ bcrypt
 pyliquibase==2.3.0
 prometheus-client
 prometheus-fastapi-instrumentator
+transformers==4.44.0
+catboost==1.2.5
+pytorch-cpu==2.4.0
