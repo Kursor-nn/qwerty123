@@ -13,7 +13,7 @@ def __build_headers():
 
 
 def filter_validation(text: str) -> bool:
-    data = { "text": text }
+    data = {"text": text}
     response = httpx.post(url=f"{config(BACKEND_HOST)}/api/guard/validate", json=data, headers=__build_headers())
     print(response.json())
     return response.json()["is_toxic"]

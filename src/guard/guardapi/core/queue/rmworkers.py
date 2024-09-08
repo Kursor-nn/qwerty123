@@ -6,7 +6,6 @@ from pydantic import ValidationError
 
 from common_consts import RABBIT_QUEUE
 from core.component import catboost_bert_toxic_service
-from loguru import logger
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",
@@ -29,8 +28,8 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
-        toxic_status = catboost_bert_toxic_service.check_toxic(body)
-        return_results(ch, method, properties, toxic_status)
+        toxic_status, text = catboost_bert_toxic_service.check_toxic(body.decode('utf-8'))
+        return_results(ch, method, properties, toxic_status, text)
     except ValidationError as e:
         correlation_id = properties.correlation_id
         reply_to = properties.reply_to
@@ -38,11 +37,20 @@ def prepare_data(ch, method, properties, body):
             exchange='',
             routing_key=reply_to,
             properties=pika.BasicProperties(correlation_id=correlation_id),
-            body=json.dumps({"is_toxic": False, "filter": "error"})
+            body=json.dumps({"is_toxic": False, "filter": "validation error"})
+        )
+    except Exception as e:
+        correlation_id = properties.correlation_id
+        reply_to = properties.reply_to
+        ch.basic_publish(
+            exchange='',
+            routing_key=reply_to,
+            properties=pika.BasicProperties(correlation_id=correlation_id),
+            body=json.dumps({"is_toxic": False, "filter": "common error "})
         )
 
 
-def return_results(ch, method, properties, toxic_status):
+def return_results(ch, method, properties, toxic_status, text):
     correlation_id = properties.correlation_id
     reply_to = properties.reply_to
 
@@ -51,7 +59,7 @@ def return_results(ch, method, properties, toxic_status):
         routing_key=reply_to,
         properties=pika.BasicProperties(correlation_id=correlation_id),
 
-        body=json.dumps({"is_toxic": toxic_status, "filter": "success"})
+        body=json.dumps({"is_toxic": toxic_status, "filter": text})
     )
 
 
