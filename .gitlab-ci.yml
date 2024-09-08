@@ -1,6 +1,6 @@
 variables:
   REPO_URL: "https://qwerty123.gitlab.yandexcloud.net/a.p.kozachuk/qwerty123.git"
-  REPO_DIR: "qwerty123"
+  REPO_DIR: "/home/kursor/qwerty123"
 
 
 stages:          # List of stages for jobs, and their order of execution
