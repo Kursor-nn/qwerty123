@@ -46,7 +46,7 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
-    - git config --global url."https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@gitlab.yandexcloud.net/a.p.kozachuk/qwerty123.git".insteadOf "$REPO_URL"
+    - git config --global url."https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@qwerty123.gitlab.yandexcloud.net/a.p.kozachuk/qwerty123.git".insteadOf "$REPO_URL"
     - |
       if [ -d "$REPO_DIR" ]; then
         echo "Repository directory exists. Pulling latest changes..."
