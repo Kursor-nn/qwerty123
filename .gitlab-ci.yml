@@ -46,6 +46,7 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
+    - sudo su - kursor
     - |
       if [ -d "$REPO_DIR" ]; then
         echo "Repository directory exists. Pulling latest changes..."
