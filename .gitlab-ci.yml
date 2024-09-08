@@ -11,6 +11,9 @@ stages:
 
 get-repo:
   stage: get_repo
+  only:
+    - master
+    - main
   script:
     - echo "Sync repo"
     - git config --global url."https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@qwerty123.gitlab.yandexcloud.net/a.p.kozachuk/qwerty123.git".insteadOf "$REPO_URL"
@@ -58,9 +61,6 @@ lint-test-job:   # This job also runs in the test stage.
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  only:
-    - master
-    - main
   environment: production
   script:
     - |
