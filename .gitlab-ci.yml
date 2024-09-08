@@ -57,5 +57,7 @@ deploy-job:      # This job runs in the deploy stage.
         git clone $REPO_URL $REPO_DIR
         cd $REPO_DIR
       fi
+    - docker compose down
+    - docker compose up -d
   tags:
     - shared
