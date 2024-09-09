@@ -2,25 +2,30 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-
-def display_24_hours(name):
-    casual = np.random.randint(0, 101, size=24)
-    toxic = np.random.randint(-101, 1, size=24)
-
-    data = pd.DataFrame(np.vstack((casual, toxic)).T, columns=["Toxic", "Casual"])
-    st.text(name)
-    st.bar_chart(data, color=["#FF0000", "#0000FF"])
+from core.component.metrics_component import get_all_stats_for_24h, get_toxic_stats_for_24h
 
 
-def display_toxic_24_hours(name):
-    toxic = np.random.randint(-101, 1, size=24)
-    chart_data = pd.DataFrame(np.abs(toxic), columns=["Toxic"])
-    st.text(name)
-    st.bar_chart(chart_data, color=["#FF0000"])
+def display_24_hours(user: str, label: str):
+    toxic = get_toxic_stats_for_24h(user)
+    casual = get_all_stats_for_24h(user)
+
+    casual = casual.rename(columns={"value": "Casual"})
+    casual["Toxic"] = toxic["value"]
+    casual = casual.reset_index()
+
+    st.text(label)
+    st.bar_chart(casual[["Casual", "Toxic"]], height=500, color=["#0000FF", "#FF0000"])
 
 
-def display_notifications_stats(name):
-    st.text(name)
+def display_toxic_24_hours(user: str, label: str):
+    toxic = get_toxic_stats_for_24h(user)
+    toxic = toxic.reset_index()
+    st.text(label)
+    st.bar_chart(toxic["value"], color=["#FF0000"], height=500)
+
+
+def display_notifications_stats(user: str, label: str):
+    st.text(label)
     df = pd.DataFrame(
         {
             "Notification Service": ["Telegram", "Emails"],
@@ -48,8 +53,8 @@ def display_notifications_stats(name):
     )
 
 
-def display_toxic_clients(name):
-    st.text(name)
+def display_toxic_clients(user: str, label: str):
+    st.text(user)
 
     df = pd.DataFrame(
         [

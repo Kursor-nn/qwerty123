@@ -6,6 +6,7 @@ import pandas as pd
 import torch
 import transformers
 from transformers import AutoTokenizer
+import logging
 
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 os.environ['clean_up_tokenization_spaces'] = "false"
@@ -78,11 +79,12 @@ def check_toxic(text):
     best_model = load_model()
 
     test = pd.DataFrame([text], columns=['text'])
+    logging.error(test)
 
     test_toxic_embeddings = build_embedings(test, BERT_MODEL["toxic"])
     toxic_features_test = np.concatenate(test_toxic_embeddings)
     test_predict = best_model.predict(toxic_features_test)
-    return bool(test_predict[0])
+    return bool(test_predict[0]), text
 
 
 if __name__ == "__main__":

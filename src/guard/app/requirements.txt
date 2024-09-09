@@ -39,3 +39,4 @@ bcrypt
 pyliquibase==2.3.0
 prometheus-client
 grafana-api-sdk
+prometheus-api-client==0.5.5
