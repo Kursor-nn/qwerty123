@@ -4,7 +4,8 @@ import pika
 from decouple import config
 from pydantic import ValidationError
 
-from api.const.const import RABBIT_QUEUE
+from common_consts import RABBIT_QUEUE
+from core.component import catboost_bert_toxic_service
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",
@@ -27,7 +28,8 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
-        return_results(ch, method, properties)
+        toxic_status, text = catboost_bert_toxic_service.check_toxic(body.decode('utf-8'))
+        return_results(ch, method, properties, toxic_status, text)
     except ValidationError as e:
         correlation_id = properties.correlation_id
         reply_to = properties.reply_to
@@ -35,11 +37,20 @@ def prepare_data(ch, method, properties, body):
             exchange='',
             routing_key=reply_to,
             properties=pika.BasicProperties(correlation_id=correlation_id),
-            body=json.dumps({"is_toxic": False, "filter": "error"})
+            body=json.dumps({"is_toxic": False, "filter": "validation error"})
+        )
+    except Exception as e:
+        correlation_id = properties.correlation_id
+        reply_to = properties.reply_to
+        ch.basic_publish(
+            exchange='',
+            routing_key=reply_to,
+            properties=pika.BasicProperties(correlation_id=correlation_id),
+            body=json.dumps({"is_toxic": False, "filter": "common error "})
         )
 
 
-def return_results(ch, method, properties):
+def return_results(ch, method, properties, toxic_status, text):
     correlation_id = properties.correlation_id
     reply_to = properties.reply_to
 
@@ -47,7 +58,8 @@ def return_results(ch, method, properties):
         exchange='',
         routing_key=reply_to,
         properties=pika.BasicProperties(correlation_id=correlation_id),
-        body=json.dumps({"is_toxic": False, "filter": "success"})
+
+        body=json.dumps({"is_toxic": toxic_status, "filter": text})
     )
 
 

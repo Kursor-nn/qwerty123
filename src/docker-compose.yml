@@ -17,8 +17,18 @@ services:
       - ./guard/app/.env
     volumes:
       - ./guard/app:/app
+      - ./guard/api:/api
     environment:
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app:/api:/app/app/
+      - GRAFANA_ENDPOINT=http://grafana:3000
+      - COOKIE_NAME="cookie_name"
+      - RABBIT_HOST="rabbitmq"
+      - RABBIT_PORT="5672"
+      - RABBIT_USER="admin"
+      - RABBIT_QUEUE="message"
+      - BACKEND_HOST="http://app:8081"
+      - DATA_ROOT_PATH="/data"
+      - PROMETHEUS_ENDPOINT="http://prometheus:9090"
     command: python app.py
     depends_on:
       rabbitmq:
@@ -31,17 +41,14 @@ services:
     build: ./guard/guardapi/
     image: python3.9-slim:latest
     hostname: llm-guardapi
-    env_file:
-      - ./guard/guardapi/.env
     volumes:
       - ./guard:/app
+      - ./guard/api:/api
+      - ./guard/source/models:/models/
+      - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/app.py
-    environment:
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=admin
-      - RABBIT_PASSWORD=admin
-      - RABBIT_QUEUE=message
+    env_file:
+      - ./guard/guardapi/.env
     depends_on:
       rabbitmq:
         condition: service_started
@@ -50,17 +57,14 @@ services:
   llm-guard-default-filter:
     build: ./guard/guardapi/
     image: python3.9-slim:latest
-    env_file:
-      - ./guard/guardapi/.env
     volumes:
       - ./guard:/app
+      - ./guard/api:/api
+      - ./guard/source/models:/models/
+      - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/core/queue/rmworkers.py
-    environment:
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=admin
-      - RABBIT_PASSWORD=admin
-      - RABBIT_QUEUE=message
+    env_file:
+      - ./guard/guardapi/.env
     depends_on:
       rabbitmq:
         condition: service_started
@@ -73,6 +77,10 @@ services:
     image: python3.9-slim:latest
     env_file:
       - ./guard/app/.env
+    environment:
+      - PYTHONPATH=/api:/app:/app/api/:/app/app/
+      - BACKEND_HOST=http://web-proxy:80
+      - PROMETHEUS_ENDPOINT=http://prometheus:9090
     volumes:
       - ./guard/:/app
     command: streamlit run app/home.py --server.port=8501 --server.address=0.0.0.0

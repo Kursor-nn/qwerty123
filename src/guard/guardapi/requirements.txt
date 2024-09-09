@@ -1,3 +1,5 @@
+-f https://download.pytorch.org/whl/torch_stable.html
+
 dvc==3.49.0
 dvc_s3==3.1.0
 
@@ -38,3 +40,7 @@ pytest==8.1.1
 bcrypt
 pyliquibase==2.3.0
 prometheus-client
+prometheus-fastapi-instrumentator
+transformers==4.44.0
+catboost==1.2.5
+torch==2.4.0

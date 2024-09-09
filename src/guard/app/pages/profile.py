@@ -58,19 +58,20 @@ with notifications_tab:
 
         st.write("You selected:", option)
         address = st.text_input("Telegram chat name for notifications")
-        ftid = [i.feature_type_id for i in notifications if i.name == option]
+        nftid = [i.feature_type_id for i in notifications if i.name == option]
 
-        st.button("Save", on_click=lambda: set_config(feature_type_id=ftid[0], value=address), use_container_width=True)
+        st.button("Save", on_click=lambda: set_config(feature_type_id=nftid[0], value=address), use_container_width=True)
 
     for i in notifications:
         st.write(i.name, ":", i.config)
 
 with threshold_tab:
-    ftid = threshold[0].feature_type_id
-    threshold_state = st.checkbox(
-        "Notification Threshold", value=threshold[0].enabled, key=f"{threshold[0].name}-{threshold[0].feature_type_id}",
-        on_change=change_value_for_stats(threshold[0].feature_type_id, not threshold[0].enabled)
-    )
-    number = st.number_input("Toxic message threshold", min_value=10, max_value=5000, step=1)
+    if len(threshold) > 0:
+        ftid = threshold[0].feature_type_id
+        threshold_state = st.checkbox(
+            "Notification Threshold", value=threshold[0].enabled, key=f"{threshold[0].name}-{threshold[0].feature_type_id}",
+            on_change=change_value_for_stats(threshold[0].feature_type_id, not threshold[0].enabled)
+        )
+        number = st.number_input("Toxic message threshold", min_value=10, max_value=5000, step=1)
 
-    st.button("Push", on_click=lambda: set_config(feature_type_id=ftid, value=number), use_container_width=True)
+        st.button("Push", on_click=lambda: set_config(feature_type_id=ftid, value=number), use_container_width=True)

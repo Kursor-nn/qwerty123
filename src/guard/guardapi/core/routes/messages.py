@@ -1,12 +1,16 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from prometheus_client import Counter
 
-from api.dto.alerts import AlertMessage
-from api.dto.api_dto import InputTextDto, ValidationResultsDto, FilterResultDto
-from guardapi.core.component import filter_component
+from auth.authenticate import authenticate
+from core.component import validate_component
+from dto.alerts import AlertMessage
+from dto.api_dto import InputTextDto, ValidationResultsDto, FilterResultDto
 
-input_validation_requests = Counter('input_validation_requests', 'Input validation requests')
-toxic_text = Counter('input_toxic_text', 'Number of toxic requests')
+# registry = CollectorRegistry()
+
+
+all_texts = Counter('input_text', 'Number of all requests', labelnames=["toxic_client_id"])
+toxic_text = Counter('input_toxic_text', 'Number of toxic requests', labelnames=["toxic_client_id"])
 
 message_router = APIRouter(tags=["Messages"])
 
@@ -31,7 +35,6 @@ USER_CREDS_ARE_WRONG = HTTPException(
 async def validate(
         alarm: AlertMessage
 ) -> ValidationResultsDto:
-    print(alarm.title, alarm.message)
     return ValidationResultsDto(is_toxic=False, details=[
         FilterResultDto(is_toxic=False, name="asdasd")
     ])
@@ -39,14 +42,14 @@ async def validate(
 
 @message_router.post("/validate", response_model=ValidationResultsDto)
 async def validate(
-        request: InputTextDto
+        request: InputTextDto,
+        user: str = Depends(authenticate)
 ) -> ValidationResultsDto:
-    input_validation_requests.inc()
-
-    results = filter_component.validate(request.text)
+    results = validate_component.validate(request.text)
+    all_texts.labels(user).inc()
 
     if results.is_toxic:
-        toxic_text.inc()
+        toxic_text.labels(user).inc()
 
     return ValidationResultsDto(is_toxic=results.is_toxic, details=[
         FilterResultDto(is_toxic=results.is_toxic, name=results.filter)
