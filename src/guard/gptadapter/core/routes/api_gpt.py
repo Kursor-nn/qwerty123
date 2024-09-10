@@ -15,8 +15,9 @@ unknown_request = Counter('unknown_llm_type_request', 'Number of requests with u
 async def ask(
         llm_type: str,
         request: LlmRequestDto,
-        user: str = Depends(authenticate)
+        #user: str = Depends(authenticate)
 ) -> LlmAnswerDto:
+    user = "123123"
     if llm_type == "yandex_gpt":
         all_request.labels(user, llm_type).inc()
         result = await get_yandex_gpt_completion(request.text)
