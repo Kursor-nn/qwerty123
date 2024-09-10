@@ -76,8 +76,23 @@ services:
       - ./guard:/app
       - ./guard/api:/api
     command: python gptadapter/app.py
-    env_file:
-      - ./guard/gptadapter/.env
+    environment:
+      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
+      - SECRET_KEY="123123"
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=admin
+      - RABBIT_PASSWORD=admin
+      - RABBIT_QUEUE=message
+      - PYTHONPATH=/app:/api:/app/gptadapter/
+      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
+      - YANDEX_GPT_MODEL_TYPE=yandexgpt
+      - YANDEX_GPT_IAM_URL=https://iam.api.cloud.yandex.net/iam/v1/tokens
+      - YANDEX_GPT_CATALOG_ID=b1gqlr305ppp2d5usta6
+      - YANDEX_GPT_SERVICE_ACCOUNT_ID=aje3g0mlb97va6im8csm
+      - YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID=ajegdqaoj192fqpeb1a2
+      - YANDEX_GPT_PRIVATE_KEY="PLEASE DO NOT REMOVE THIS LINE! Yandex.Cloud SA Key ID <ajegdqaoj192fqpeb1a2>\n-----BEGIN PRIVATE KEY-----\n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\nTeOWXG6+b2wP+l1P9uRdf5efzu60TXY=\n-----END PRIVATE KEY-----\n"
+      - GPT_ADAPTER_QUEUE = "yandex-gpt-adapter-queue"
     depends_on:
       rabbitmq:
         condition: service_started
