@@ -33,3 +33,4 @@ bcrypt
 prometheus-client
 prometheus-fastapi-instrumentator
 yandexgpt-python
+prometheus-api-client==0.5.5
