@@ -72,6 +72,21 @@ services:
         condition: service_started
     restart: on-failure
 
+  llm-yandex-gpt-api-adapter:
+    build: ./guard/gptadapter/
+    image: python3.9-slim:latest
+    hostname: llm-gpt-adapter
+    volumes:
+      - ./guard:/app
+      - ./guard/api:/api
+    command: python gptadapter/app.py
+    env_file:
+      - ./guard/gptadapter/.env
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    restart: on-failure
+
   webui:
     build: ./guard/app/
     image: python3.9-slim:latest

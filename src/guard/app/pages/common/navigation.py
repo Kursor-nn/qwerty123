@@ -22,7 +22,7 @@ def make_sidebar():
                 toxic_status = filter_profile.filter_validation(prompt)
 
                 with st.chat_message("AI Filter"):
-                    text = "Неприемлемо!!" if toxic_status else "Пропускаем =)"
+                    text = toxic_status["llm_answer"] if toxic_status["is_toxic"] else toxic_status["llm_answer"]
                     st.session_state.messages.append({"role": "user", "content": prompt})
                     st.session_state.messages.append({"role": "AI", "content": text})
 

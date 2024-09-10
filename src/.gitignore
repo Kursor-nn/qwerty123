@@ -1,3 +1,5 @@
 postgresdata
 rabbitmqdata
 guard/source/
+guard/gptadapter/.env
+guard/guardapi/.env
