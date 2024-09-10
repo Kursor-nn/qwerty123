@@ -12,7 +12,6 @@ services:
 
   app:
     build: ./guard/app/
-    image: python3.9-slim:latest
     env_file:
       - ./guard/app/.env
     volumes:
@@ -39,7 +38,6 @@ services:
 
   llm-guardapi:
     build: ./guard/guardapi/
-    image: python3.9-slim:latest
     hostname: llm-guardapi
     volumes:
       - ./guard:/app
@@ -56,7 +54,6 @@ services:
 
   llm-guard-default-filter:
     build: ./guard/guardapi/
-    image: python3.9-slim:latest
     volumes:
       - ./guard:/app
       - ./guard/api:/api
@@ -74,7 +71,6 @@ services:
 
   llm-yandex-gpt-api-adapter:
     build: ./guard/gptadapter/
-    image: python3.9-slim:latest
     hostname: llm-gpt-adapter
     volumes:
       - ./guard:/app
@@ -89,7 +85,6 @@ services:
 
   webui:
     build: ./guard/app/
-    image: python3.9-slim:latest
     env_file:
       - ./guard/app/.env
     environment:
