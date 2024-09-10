@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from prometheus_client import Counter
 
 from auth.authenticate import authenticate
-from core.component import validate_component
+from core.component import validate_component, llm_api
 from dto.alerts import AlertMessage
 from dto.api_dto import InputTextDto, ValidationResultsDto, FilterResultDto
 
@@ -50,7 +50,12 @@ async def validate(
 
     if results.is_toxic:
         toxic_text.labels(user).inc()
+    else:
+        response = llm_api.ask_yandex(request.text)
+        return ValidationResultsDto(is_toxic=results.is_toxic, llm_answer=response.text, details=[
+            FilterResultDto(is_toxic=results.is_toxic, name=results.filter)
+        ])
 
-    return ValidationResultsDto(is_toxic=results.is_toxic, details=[
+    return ValidationResultsDto(is_toxic=results.is_toxic, llm_answer="Неприемлемый запрос.", details=[
         FilterResultDto(is_toxic=results.is_toxic, name=results.filter)
     ])
