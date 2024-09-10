@@ -79,21 +79,15 @@ services:
     env_file:
       - ./guard/gptadapter/.env
     environment:
-      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
-      - SECRET_KEY="123123"
       - RABBIT_HOST=rabbitmq
       - RABBIT_PORT=5672
       - RABBIT_USER=admin
-      - RABBIT_PASSWORD=admin
       - RABBIT_QUEUE=message
       - PYTHONPATH=/app:/api:/app/gptadapter/
       - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
       - YANDEX_GPT_MODEL_TYPE=yandexgpt
       - YANDEX_GPT_IAM_URL=https://iam.api.cloud.yandex.net/iam/v1/tokens
-      - YANDEX_GPT_CATALOG_ID=b1gqlr305ppp2d5usta6
-      - YANDEX_GPT_SERVICE_ACCOUNT_ID=aje3g0mlb97va6im8csm
-      - YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID=ajegdqaoj192fqpeb1a2
-      - GPT_ADAPTER_QUEUE = "yandex-gpt-adapter-queue"
+      - GPT_ADAPTER_QUEUE="yandex-gpt-adapter-queue"
     depends_on:
       rabbitmq:
         condition: service_started
