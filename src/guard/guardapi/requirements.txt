@@ -44,3 +44,4 @@ prometheus-fastapi-instrumentator
 transformers==4.44.0
 catboost==1.2.5
 torch==2.4.0
+prometheus-api-client==0.5.5
