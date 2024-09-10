@@ -3,10 +3,12 @@ from pydantic import BaseModel
 
 class InputTextDto(BaseModel):
     text: str = None
+    filter_type: str = None
 
-    def __init__(self, text: str, **data):
+    def __init__(self, text: str, filter_type: str, **data):
         super().__init__(**data)
         self.text = text
+        self.filter_type = filter_type
 
 
 class FilterResultDto(BaseModel):

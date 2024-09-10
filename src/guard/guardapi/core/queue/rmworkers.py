@@ -5,7 +5,7 @@ from decouple import config
 from pydantic import ValidationError
 
 from common_consts import RABBIT_QUEUE
-from core.component import catboost_bert_toxic_service
+from core.component import catboost_bert_toxic_service, general_check_text_service
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",
@@ -28,8 +28,15 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
-        toxic_status, text = catboost_bert_toxic_service.check_toxic(body.decode('utf-8'))
-        return_results(ch, method, properties, toxic_status, text)
+        info = json.loads(body.decode('utf-8'))
+        if info["type"] == "toxic_filter":
+            toxic_status, text = catboost_bert_toxic_service.check_toxic(info["message"])
+            return_results(ch, method, properties, toxic_status, text)
+        elif info["type"] == "general_filter":
+            toxic_status, text = general_check_text_service.check_toxic(info["message"])
+            return_results(ch, method, properties, toxic_status, text)
+        else:
+            return_results(ch, method, properties, None, None)
     except ValidationError as e:
         correlation_id = properties.correlation_id
         reply_to = properties.reply_to
@@ -46,7 +53,7 @@ def prepare_data(ch, method, properties, body):
             exchange='',
             routing_key=reply_to,
             properties=pika.BasicProperties(correlation_id=correlation_id),
-            body=json.dumps({"is_toxic": False, "filter": "common error "})
+            body=json.dumps({"is_toxic": False, "filter": "common error >> : " + "info: " + body.decode('utf-8') + " > " + str(e)})
         )
 
 

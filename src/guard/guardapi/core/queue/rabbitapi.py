@@ -1,3 +1,4 @@
+import json
 import uuid
 
 import pika
@@ -18,7 +19,7 @@ rabbitmq_connection_string = pika.ConnectionParameters(
 )
 
 
-def send_message2rabbit(message: str) -> str:
+def send_message2rabbit(filter_type: str, message: str) -> str:
     response = None
     connection = pika.BlockingConnection(rabbitmq_connection_string)
     channel = connection.channel()
@@ -31,7 +32,10 @@ def send_message2rabbit(message: str) -> str:
         routing_key=queue_name,
         properties=pika.BasicProperties(reply_to=result_queue,
                                         correlation_id=correlation_id),
-        body=message)
+        body=json.dumps({
+            "type": filter_type,
+            "message": message
+        }))
 
     def on_response(ch, method, properties, body):
         if properties.correlation_id == correlation_id:

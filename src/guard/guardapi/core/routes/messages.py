@@ -45,8 +45,10 @@ async def validate(
         request: InputTextDto,
         user: str = Depends(authenticate)
 ) -> ValidationResultsDto:
-    results = validate_component.validate(request.text)
+    results = validate_component.validate(request.filter_type, request.text)
     all_texts.labels(user).inc()
+
+    print("After validation 2: ", results)
 
     if results.is_toxic:
         toxic_text.labels(user).inc()

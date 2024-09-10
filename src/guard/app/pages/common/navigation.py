@@ -19,7 +19,7 @@ def make_sidebar():
                 st.session_state.messages = []
 
             if prompt := st.chat_input("What is up?"):
-                toxic_status = filter_profile.filter_validation(prompt)
+                toxic_status = filter_profile.filter_validation(filter_type="general_filter", text=prompt)
 
                 with st.chat_message("AI Filter"):
                     text = toxic_status["llm_answer"] if toxic_status["is_toxic"] else toxic_status["llm_answer"]
