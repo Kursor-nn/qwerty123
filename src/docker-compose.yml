@@ -59,7 +59,7 @@ services:
       - RABBIT_PASSWORD=${RABBIT_PASSWORD}
       - RABBIT_QUEUE=${RABBIT_QUEUE}
       - GPT_ADAPTER_QUEUE=${GPT_ADAPTER_QUEUE}
-      - LLM_ADAPTER_ENDPOINT=${LLM_ADAPTER_ENDPOINT]
+      - LLM_ADAPTER_ENDPOINT=${LLM_ADAPTER_ENDPOINT}
       - BACKEND_HOST=${BACKEND_HOST}
     depends_on:
       rabbitmq:
@@ -149,7 +149,7 @@ services:
     restart: on-failure
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS]
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
     volumes:
       - ./rabbitmqdata:/var/lib/rabbitmq
