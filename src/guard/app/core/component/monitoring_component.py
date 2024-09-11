@@ -12,6 +12,9 @@ grafana_service_account_headers = {
     "Content-Type": "application/json"
 }
 
+CREATE_NOTIFICATION_CONTACT_ENDPOINT = f"{grafana_endpoint}/api/v1/provisioning/contact-points"
+DELETE_NOTIFICATION_CONTACT_ENDPOINT = f"{grafana_endpoint}/api/v1/provisioning/contact-points/"
+
 
 def create_telegram_contact(contact_name: str, chat_id: str):
     contact_id = f"{contact_name}-{chat_id}"
@@ -32,7 +35,7 @@ def create_telegram_contact(contact_name: str, chat_id: str):
     }
 
     response = httpx.post(
-        url=f"{grafana_endpoint}/api/v1/provisioning/contact-points",
+        url=CREATE_NOTIFICATION_CONTACT_ENDPOINT,
         json=data, headers=grafana_service_account_headers)
 
     payload = response.json()
@@ -42,8 +45,9 @@ def create_telegram_contact(contact_name: str, chat_id: str):
 
 
 def delete_telegram_contact(contact_name: str, chat_id: str):
+    contact_id = f"{contact_name}-{chat_id}"
     response = httpx.delete(
-        url=f"{grafana_endpoint}/api/v1/provisioning/contact-points/{contact_name}-{chat_id}",
+        url=DELETE_NOTIFICATION_CONTACT_ENDPOINT + contact_id,
         headers=grafana_service_account_headers)
 
-    return (True, response.json()["message"])
+    return True, response.json()["message"]

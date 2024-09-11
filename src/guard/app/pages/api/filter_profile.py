@@ -2,8 +2,8 @@ import httpx
 import loguru
 from decouple import config
 
-from core.cookies.cookies import get_cookie_manager
-from utils.const import BACKEND_HOST
+from common_consts import BACKEND_HOST
+from pages.common.cookies import get_cookie_manager
 
 
 def __build_headers():

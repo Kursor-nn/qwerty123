@@ -2,18 +2,24 @@ from time import sleep
 
 import streamlit as st
 
-from core.cookies.cookies import cookie_manager
+from auth.jwt_handler import verify_access_token
 from pages.api import filter_profile
-from loguru import logger
+from pages.common.cookies import cookie_manager
+
 
 def make_sidebar():
     access_token = cookie_manager.get("access_token")
     with st.sidebar:
-        st.title("Йцукен123")
+        if access_token and access_token != "":
+            user_name, logout_button = st.columns([3, 1])
+            with user_name:
+                user = verify_access_token(access_token)["user"]
+                if st.button(f"{user} profile", use_container_width=True):
+                    st.switch_page("pages/profile.py")
 
-        if access_token or access_token != "":
-            if st.button("Logout", type="primary"):
-                logout()
+            with logout_button:
+                if st.button("Logout", type="primary"):
+                    logout()
 
             if "messages" not in st.session_state:
                 st.session_state.messages = []

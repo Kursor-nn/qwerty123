@@ -1,31 +1,7 @@
-import httpx
 import streamlit as st
-from decouple import config
 
-from core.cookies.cookies import get_cookie_manager
-from utils.const import BACKEND_HOST
-
-
-def password_entered(login, password):
-    data = {
-        "login": login,
-        "password": password
-    }
-    headers = {'Content-type': 'application/json'}
-    res = httpx.post(url=f"{config(BACKEND_HOST)}/api/user/signin", json=data, headers=headers)
-    return res
-
-
-def create_user(login, user_password, email_address):
-    data = {
-        "login": login,
-        "password": user_password,
-        "email": email_address,
-    }
-
-    headers = {'Content-type': 'application/json'}
-    res = httpx.post(url=f"{config(BACKEND_HOST)}/api/user/register", json=data, headers=headers)
-    return res
+from pages.api.user_profile import password_entered, create_user
+from pages.common.cookies import get_cookie_manager
 
 
 def display_start_page():

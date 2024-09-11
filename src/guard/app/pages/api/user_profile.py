@@ -2,8 +2,8 @@ import httpx
 from decouple import config
 
 from api.dto.ProfileDto import ProfileInfo
-from core.cookies.cookies import get_cookie_manager
-from utils.const import BACKEND_HOST
+from common_consts import BACKEND_HOST
+from pages.common.cookies import get_cookie_manager
 
 
 def __build_headers():
@@ -46,3 +46,25 @@ def set_config(feature_type_id: str, value: str):
                      headers=__build_headers())
 
     return res.json()
+
+
+def password_entered(login, password):
+    data = {
+        "login": login,
+        "password": password
+    }
+    headers = {'Content-type': 'application/json'}
+    res = httpx.post(url=f"{config(BACKEND_HOST)}/api/user/signin", json=data, headers=headers)
+    return res
+
+
+def create_user(login, user_password, email_address):
+    data = {
+        "login": login,
+        "password": user_password,
+        "email": email_address,
+    }
+
+    headers = {'Content-type': 'application/json'}
+    res = httpx.post(url=f"{config(BACKEND_HOST)}/api/user/register", json=data, headers=headers)
+    return res

@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlmodel import Session
 
 from core.component.user_component import get_user_by_login
-from core.data.UserFeatureData import UserFeatureData
+from core.data.user_feature_data import UserFeatureData
 from core.database.database import get_session
 from core.models.model import UserFeaturesConfig
 

@@ -1,7 +1,9 @@
 from core.component.yandex_gpt_api import get_yandex_gpt_completion
 from fastapi import APIRouter
+from fastapi.params import Depends
 from prometheus_client import Counter
 
+from auth.authenticate import authenticate
 from dto.llm_api import LlmAnswerDto, LlmRequestDto
 
 llm_api_router = APIRouter(tags=["LLM Requests"])
@@ -14,9 +16,8 @@ unknown_request = Counter('unknown_llm_type_request', 'Number of requests with u
 async def ask(
         llm_type: str,
         request: LlmRequestDto,
-        # user: str = Depends(authenticate)
+        user: str = Depends(authenticate)
 ) -> LlmAnswerDto:
-    user = "123123"
     if llm_type == "yandex_gpt":
         all_request.labels(user, llm_type).inc()
         result = await get_yandex_gpt_completion(request.text)

@@ -1,7 +1,7 @@
 import streamlit as st
 
-from core.cookies.cookies import get_cookie_manager
 from pages.api.user_profile import get_profile_info, toggle_feature, set_config
+from pages.common.cookies import get_cookie_manager
 from pages.common.navigation import make_sidebar
 
 make_sidebar()

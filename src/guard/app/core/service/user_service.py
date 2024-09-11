@@ -1,19 +1,15 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import HTTPException, Depends, status
 
-from api.dto.ProfileDto import ProfileInfo
-from api.dto.features_dto import FeatureToggleDto
-from auth.authenticate import authenticate
 from auth.hash_password import HashPassword
 from auth.jwt_handler import create_access_token
 from core.component import user_component as UserComponent
 from core.component.alert_component import create_alarm_rule, delete_alarm_rule
-from core.component.profile_component import get_features, get_feature_by_id, toggle_feature
+from core.component.profile_component import get_feature_by_id
 from core.component.user_component import get_user_by_login
 from core.database.database import get_session
-from core.routes.dto.RegUserDto import NewUser, SuccessResponse, TokenResponse, SigninRequest
 from core.service.feature_togle_service import create_contact
+from dto.user_dto import SuccessResponse
 
-user_router = APIRouter(tags=["User"])
 hash_password = HashPassword()
 
 EMAIL_EXISTS = HTTPException(
@@ -35,65 +31,49 @@ USER_CREDS_ARE_WRONG = HTTPException(
 )
 
 
-@user_router.post("/register", response_model=SuccessResponse)
-async def sign_new_user(
-        user: NewUser,
-        session=Depends(get_session)
+def create_new_user(
+        login: str,
+        password: str,
+        email: str,
+        session=get_session()
 ) -> SuccessResponse:
-    if UserComponent.get_user_email(user.email, session):
+    if UserComponent.get_user_email(email, session):
         raise EMAIL_EXISTS
 
-    if user.login is None or user.email is None or user.password is None:
+    if login is None or email is None or password is None:
         raise REG_REQUEST_IS_BROKEN
 
-    hashed_password = hash_password.create_hash(user.password)
-    user.password = hashed_password
+    hashed_password = hash_password.create_hash(password)
+    password = hashed_password
 
     UserComponent.add_client(
-        user.login, user.email, user.password, session
+        login, email, password, session
     )
 
     return SuccessResponse(message="User created successfully.")
 
 
-@user_router.post("/signin", response_model=TokenResponse)
-async def sign_user_in(
-        request: SigninRequest,
-        session=Depends(get_session)
-) -> dict:
-    user_exist = get_user_by_login(request.login, session)
+def signin(login: str, password: str, session=get_session()):
+    user_exist = get_user_by_login(login, session)
 
     if user_exist is None: raise USER_IS_NOT_EXIST
 
-    if hash_password.verify_hash(request.password, user_exist.password):
+    if hash_password.verify_hash(password, user_exist.password):
         access_token = create_access_token(user_exist.login)
         return {"access_token": access_token, "token_type": "Bearer"}
 
     raise USER_CREDS_ARE_WRONG
 
 
-@user_router.get("/profile", response_model=ProfileInfo)
-async def profile(
-        user: str = Depends(authenticate)
-) -> ProfileInfo:
-    return ProfileInfo(
-        username=user, features=[data.__dict__ for data in get_features(user)]
-    )
-
-
-@user_router.post("/profile/feature", status_code=200)
-async def profile(
-        feature_toggle: FeatureToggleDto,
-        user: str = Depends(authenticate)
-):
-    feature = get_feature_by_id(user, feature_toggle.feature_type_id)
+def toggle_feature(user: str, feature_type_id: str, feature_status: bool):
+    feature = get_feature_by_id(user, feature_type_id)
     _, _, contact_id = create_contact(user, feature.config, feature.name)
     if contact_id:
-        if feature_toggle.value:
+        if feature_status:
             _, _, rule_id = create_alarm_rule(f"{user}-toxic-threshold-notification",
                                               f"{user}-toxic-threshold-notification",
                                               contact_id + "-notification", user)
         else:
             delete_alarm_rule(f"{user}-toxic-threshold-notification")
 
-    toggle_feature(user, feature_toggle.feature_type_id, feature_toggle.value)
+    toggle_feature(user, feature_type_id, feature_status)
