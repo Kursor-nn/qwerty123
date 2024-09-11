@@ -35,8 +35,9 @@ def make_sidebar():
 
                 with st.chat_message("AI Filter"):
                     text = toxic_status["llm_answer"] if toxic_status["is_toxic"] else toxic_status["llm_answer"]
-                    tags = ["#" + i["name"] for i in toxic_status["details"]]
-                    text = text + "\n\n Возможные темы ответа: " + ', '.join(tags)
+                    tags = ["#" + i["name"] for i in toxic_status["details"] if i["is_toxic"] == False]
+                    if len(tags) != 0:
+                        text = text + "\n\n Возможные темы ответа: " + ', '.join(tags)
 
                     st.session_state.messages.append({"role": "user", "content": prompt})
                     st.session_state.messages.append({"role": "AI", "content": text})
