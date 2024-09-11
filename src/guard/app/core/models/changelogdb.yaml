@@ -1,3 +1,4 @@
+databaseChangeLog:
   # Create the new 'susers' table if it does not already exist
   - changeSet:
       id: 1
