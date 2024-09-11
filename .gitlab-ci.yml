@@ -3,15 +3,20 @@ variables:
   REPO_DIR: "/home/gitlab-runner/qwerty123"
   ENV_GUARD_FILE_PATH: "src/guard/app/.env"
   ENV_GPTADAPTER_FILE_PATH: "src/guard/gptadapter/.env"
+  LIQUIBASE_IMAGE: "liquibase/liquibase"
+  LIQUIBASE_PG_URL: "jdbc:postgresql://172.17.0.1:5432"
+  LIQUIBASE_CHANGELOG_FILE_PATH: "src/guard/app/core/models"
+  LIQUIBASE_CHANGELOG_FILE: "changelogdb.yaml"
 
 
 stages:
   - get_repo          # List of stages for jobs, and their order of execution
-  - update_guard_env
-  - update_gptadapter_env
+  - update-env-files
   - build
   - test
   - deploy
+  - liquibase_check
+  - liquibase_deploy
 
 get-repo:
   stage: get_repo
@@ -35,7 +40,7 @@ get-repo:
     - shared
 
 update_guard_env_file:
-  stage: update_guard_env
+  stage: update-env-files
   script:
     - echo "Updating .env"
     # Backup the existing .env file if it exists
@@ -44,69 +49,50 @@ update_guard_env_file:
       sed -i "s|^CONNECTION_URI=.*|CONNECTION_URI=${CONNECTION_URI}|g" $ENV_GUARD_FILE_PATH
       sed -i "s|^SECRET_KEY=.*|SECRET_KEY=${SECRET_KEY}|g" $ENV_GUARD_FILE_PATH
       sed -i "s|^RABBIT_PASSWORD *=.*|RABBIT_PASSWORD=${RABBIT_PASSWORD}|g" $ENV_GUARD_FILE_PATH
-      sed -i "s|^RABBIT_PORT *=.*|RABBIT_PORT=${RABBIT_PORT}|g" $ENV_GUARD_FILE_PATH
       sed -i "s|^TELEGRAM_BOT_TOKEN *=.*|TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}|g" $ENV_GUARD_FILE_PATH
       sed -i "s|^GRAFANA_SERVICE_TOKEN *=.*|GRAFANA_SERVICE_TOKEN=${GRAFANA_SERVICE_TOKEN}|g" $ENV_GUARD_FILE_PATH
       sed -i "s|^GRAFANA_FOLDER_UID *=.*|GRAFANA_FOLDER_UID=${GRAFANA_FOLDER_UID}|g" $ENV_GUARD_FILE_PATH
       sed -i "s|^BACKEND_HOST=.*|BACKEND_HOST=${BACKEND_HOST}|g" $ENV_GUARD_FILE_PATH
-      sed -i "s|^LLM_ADAPTER_ENDPOINT=.*|LLM_ADAPTER_ENDPOINT=${LLM_ADAPTER_ENDPOINT}|g" $ENV_GUARD_FILE_PATH
-      sed -i "s|^GPT_ADAPTER_QUEUE=.*|GPT_ADAPTER_QUEUE=${GPT_ADAPTER_QUEUE}|g" $ENV_GUARD_FILE_PATH
-      sed -i "s|^RABBIT_QUEUE=.*|RABBIT_QUEUE=${RABBIT_QUEUE}|g" $ENV_GUARD_FILE_PATH
-      sed -i "s|^RABBIT_USER=.*|RABBIT_USER=${RABBIT_USER}|g" $ENV_GUARD_FILE_PATH
-      sed -i "s|^RABBIT_HOST=.*|RABBIT_USER=${RABBIT_HOST}|g" $ENV_GUARD_FILE_PATH
-      sed -i "s|^SECRET_KEY=.*|RABBIT_USER=${SECRET_KEY}|g" $ENV_GUARD_FILE_PATH
+  dependencies:
+    - get-repo
   tags:
     - shared
 
-      #update_gptadapter_env_file:
-      #  stage: update_gptadapter_env
-      #  script:
-      #    - echo "Updating .env"
-      #    # Backup the existing .env file if it exists
-      #    - cd $REPO_DIR
-      #    - |
-      #      if [ ! -f "$ENV_GPTADAPTER_FILE_PATH" ]; then
-      #        echo "create new file .env"
-      #        touch "$ENV_GPTADAPTER_FILE_PATH"
-      #      fi
-
-      #      update_or_add_env_variable() {
-      #        local key="$1"
-      #        local value="$2"
-      #        local file="$3"
-      #        if grep -q "^${key}=" "$file"; then
-      #          # update
-      #          sed -i "s|^${key}=.*|${key}=${value}|g" "$file"
-      #        else
-      #          # add value
-      #          echo "${key}=${value}" >> "$file"
-      #        fi
-      #      }
-      #
-    # update
-#      update_or_add_env_variable "CONNECTION_URI" "${CONNECTION_URI}" "$ENV_GPTADAPTER_FILE_PATH"
-#      update_or_add_env_variable "SECRET_KEY" "${SECRET_KEY}" "$ENV_GPTADAPTER_FILE_PATH"
-#      update_or_add_env_variable "RABBIT_PASSWORD" "${RABBIT_PASSWORD}" "$ENV_GPTADAPTER_FILE_PATH"
-#      update_or_add_env_variable "YANDEX_GPT_CATALOG_ID" "${YANDEX_GPT_CATALOG_ID}" "$ENV_GPTADAPTER_FILE_PATH"
-#      update_or_add_env_variable "YANDEX_GPT_SERVICE_ACCOUNT_ID" "${YANDEX_GPT_SERVICE_ACCOUNT_ID}" "$ENV_GPTADAPTER_FILE_PATH"
-#      update_or_add_env_variable "YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID" "${YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID}" "$ENV_GPTADAPTER_FILE_PATH"
-#      update_or_add_env_variable "YANDEX_GPT_PEM_PRIVATE_KEY" "${YANDEX_GPT_PEM_PRIVATE_KEY}" "$ENV_GPTADAPTER_FILE_PATH"
-#
-#      # sed -i "s|^YANDEX_GPT_CATALOG_ID=.*|YANDEX_GPT_CATALOG_ID=${YANDEX_GPT_CATALOG_ID}|g" $ENV_GPTADAPTER_FILE_PATH
-#      # sed -i "s|^YANDEX_GPT_SERVICE_ACCOUNT_ID=.*|YANDEX_GPT_SERVICE_ACCOUNT_ID=${YANDEX_GPT_SERVICE_ACCOUNT_ID}|g" $ENV_GPTADAPTER_FILE_PATH
-#      # sed -i "s|^YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID *=.*|YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID=${YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID}|g" $ENV_GPTADAPTER_FILE_PATH
-#      # sed -i "s|^YANDEX_GPT_PRIVATE_KEY *=.*|YANDEX_GPT_PRIVATE_KEY=${YANDEX_GPT_PRIVATE_KEY}|g" $ENV_GPTADAPTER_FILE_PATH
-#  tags:
-#    - shared
-
-
-
-
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
+update_gptadapter_env_file:
+  stage: update-env-files
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+    - echo "Updating .env"
+    # Backup the existing .env file if it exists
+    - cd $REPO_DIR
+    - |
+      if [ ! -f "$ENV_GPTADAPTER_FILE_PATH" ]; then
+        echo "create new file .env"
+        touch "$ENV_GPTADAPTER_FILE_PATH"
+      fi
+
+      update_or_add_env_variable() { 
+        local key="$1"
+        local value="$2"
+        local file="$3"
+        if grep -q "^${key}=" "$file"; then
+          # update
+          sed -i "s|^${key}=.*|${key}=${value}|g" "$file"
+        else
+          # add value
+          echo "${key}=${value}" >> "$file"
+        fi
+      }
+
+      # update
+      update_or_add_env_variable "CONNECTION_URI" "${CONNECTION_URI}" "$ENV_GPTADAPTER_FILE_PATH"
+      update_or_add_env_variable "SECRET_KEY" "${SECRET_KEY}" "$ENV_GPTADAPTER_FILE_PATH"
+      update_or_add_env_variable "RABBIT_PASSWORD" "${RABBIT_PASSWORD}" "$ENV_GPTADAPTER_FILE_PATH"
+      update_or_add_env_variable "YANDEX_GPT_CATALOG_ID" "${YANDEX_GPT_CATALOG_ID}" "$ENV_GPTADAPTER_FILE_PATH"
+      update_or_add_env_variable "YANDEX_GPT_SERVICE_ACCOUNT_ID" "${YANDEX_GPT_SERVICE_ACCOUNT_ID}" "$ENV_GPTADAPTER_FILE_PATH"
+      update_or_add_env_variable "YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID" "${YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID}" "$ENV_GPTADAPTER_FILE_PATH"
+      update_or_add_env_variable "YANDEX_GPT_PRIVATE_KEY" "${YANDEX_GPT_PRIVATE_KEY}" "$ENV_GPTADAPTER_FILE_PATH"
+  dependencies:
+    - get-repo
   tags:
     - shared
 
@@ -117,6 +103,9 @@ unit-test-job:   # This job runs in the test stage.
     - echo "Running unit tests... This will take about 10 seconds."
     - sleep 10
     - echo "Code coverage is 90%"
+  dependencies:
+    - update_guard_env_file
+    - update_gptadapter_env_file
   tags:
     - shared
 
@@ -126,12 +115,14 @@ lint-test-job:   # This job also runs in the test stage.
     - echo "Linting code... This will take about 10 seconds."
     - sleep 10
     - echo "No lint issues found."
+  dependencies:
+    - update_guard_env_file
+    - update_gptadapter_env_file
   tags:
     - shared
 
 deploy-job:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
   script:
     - |
       cd $REPO_DIR/src/
@@ -142,5 +133,50 @@ deploy-job:      # This job runs in the deploy stage.
       when: always
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: always
+  dependencies:
+    - lint-test-job
+    - unit-test-job
+  tags:
+    - shared
+
+liquibase_check_status:
+  stage: liquibase_check
+  script:
+    - echo "Checking Liquibase status..."
+    - cd $REPO_DIR
+    - echo $PWD
+    - echo $CI_PROJECT_DIR
+    - docker run --rm -v $PWD/$LIQUIBASE_CHANGELOG_FILE_PATH:/liquibase/changelog $LIQUIBASE_IMAGE liquibase --url=$LIQUIBASE_PG_URL/$POSTGRES_DB --changelog-file=changelog/$LIQUIBASE_CHANGELOG_FILE --username=$POSTGRES_USER --password=$POSTGRES_PASSWORD status > status_output.txt || true
+    - |
+      if grep -qi "have not been applied" status_output.txt; then
+        echo "Changes detected. Proceeding to deploy."
+        echo "CHANGES_PRESENT=true" >> $CI_PROJECT_DIR/build.env
+      else
+        echo "No changes detected. Skipping deploy."
+        echo "CHANGES_PRESENT=false" >> $CI_PROJECT_DIR/build.env
+      fi
+  artifacts:
+    reports:
+      dotenv: build.env
+  dependencies:
+    - deploy-job
+  tags:
+    - shared
+
+
+liquibase_deploy:
+  stage: liquibase_deploy
+  script:
+    - echo "Checking Liquibase status..."
+    - cd $REPO_DIR
+    - |
+      if [ "$CHANGES_PRESENT" = "true" ]; then
+        echo "Applying Liquibase changes..."
+        docker run --rm -v $PWD/$LIQUIBASE_CHANGELOG_FILE_PATH:/liquibase/changelog $LIQUIBASE_IMAGE liquibase --url=$LIQUIBASE_PG_URL/$POSTGRES_DB --changelog-file=changelog/$LIQUIBASE_CHANGELOG_FILE --username=$POSTGRES_USER --password=$POSTGRES_PASSWORD update
+      else
+        echo "No changes to apply. Skipping deploy."
+      fi
+  dependencies:
+    - liquibase_check_status
   tags:
     - shared
