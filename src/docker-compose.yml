@@ -20,16 +20,16 @@ services:
     environment:
       - PYTHONPATH=/app:/api:/app/app/
       - COOKIE_NAME=cookie_name
-    #      - CONNECTION_URI=postgresql+psycopg2://admin:postgres@database:5432/productdb
-    #      - SECRET_KEY=123123
-    #      - GRAFANA_ENDPOINT=http://grafana:3000
-    #     - RABBIT_HOST=rabbitmq
-    #      - RABBIT_PORT=5672
-    #      - RABBIT_USER=admin
-    #      - RABBIT_QUEUE=message
-    #      - BACKEND_HOST=http://app:8081
-    #      - DATA_ROOT_PATH=/data
-    #      - PROMETHEUS_ENDPOINT=http://prometheus:9090
+      - CONNECTION_URI=${CONNECTION_URI}
+      - SECRET_KEY=${SECRET_KEY}
+      - GRAFANA_ENDPOINT=${GRAFANA_ENDPOINT}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_PORT=${RABBIT_PORT}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_QUEUE=${RABBIT_QUEUE]
+      - BACKEND_HOST=${BACKEND_HOST}
+      - DATA_ROOT_PATH=${DATA_ROOT_PATH}
+      - PROMETHEUS_ENDPOINT=${PROMETHEUS_ENDPOINT}
     command: python app.py
     depends_on:
       rabbitmq:
@@ -51,16 +51,16 @@ services:
       - ./guard/guardapi/.env
     environment:
       - PYTHONPATH=/app:/api:/app/guardapi/
-    #      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
-    #      - SECRET_KEY=123123
-    #     - RABBIT_HOST=rabbitmq
-    #     - RABBIT_PORT=5672
-    #      - RABBIT_USER=admin
-    #     - RABBIT_PASSWORD=admin
-    #     - RABBIT_QUEUE=message
-    #     - GPT_ADAPTER_QUEUE=yandex-gpt-adapter-queue
-    #      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
-    #      - BACKEND_HOST="http://web-proxy:80"
+      - CONNECTION_URI=${CONNECTION_URI}
+      - SECRET_KEY=${SECRET_KEY}
+      - RABBIT_HOST=${RABBIT_HOST}
+      - RABBIT_PORT=${RABBIT_PORT}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - RABBIT_QUEUE=${RABBIT_QUEUE}
+      - GPT_ADAPTER_QUEUE=${GPT_ADAPTER_QUEUE}
+      - LLM_ADAPTER_ENDPOINT=${LLM_ADAPTER_ENDPOINT]
+      - BACKEND_HOST=${BACKEND_HOST}
     depends_on:
       rabbitmq:
         condition: service_started
@@ -78,14 +78,14 @@ services:
       - ./guard/guardapi/.env
     environment:
       - PYTHONPATH=/app:/api:/app/guardapi/
-    #      - RABBIT_HOST=rabbitmq
-    #      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
-    #      - SECRET_KEY=123123
-    #      - RABBIT_PORT=5672
-    #      - RABBIT_USER=admin
-    #      - RABBIT_QUEUE=message
-    #      - RABBIT_PASSWORD=admin
-    #      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
+      - RABBIT_HOST=${RABBIT_HOST}
+      - CONNECTION_URI=${CONNECTION_URI}
+      - SECRET_KEY=${SECRET_KEY}
+      - RABBIT_PORT=${RABBIT_PORT}
+      - RABBIT_USER=${RABBIT_USER}
+      - RABBIT_QUEUE=${RABBIT_QUEUE}
+      - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+      - LLM_ADAPTER_ENDPOINT=${LLM_ADAPTER_ENDPOINT}
     depends_on:
       rabbitmq:
         condition: service_started
@@ -130,9 +130,9 @@ services:
       - ./guard/app/.env
     environment:
       - PYTHONPATH=/api:/app:/app/api:/app/app/
-    #      - BACKEND_HOST=http://web-proxy:80
-    #      - PROMETHEUS_ENDPOINT=http://prometheus:9090
-    #      - SECRET_KEY=123123
+      - BACKEND_HOST=${BACKEND_HOST}
+      - PROMETHEUS_ENDPOINT=${PROMETHEUS_ENDPOINT}
+      - SECRET_KEY=${SECRET_KEY}
     volumes:
       - ./guard/:/app
     command: streamlit run app/home.py --server.port=8501 --server.address=0.0.0.0
@@ -148,8 +148,8 @@ services:
     hostname: rabbitmq
     restart: on-failure
     environment:
-      #      - RABBITMQ_DEFAULT_USER=admin
-      #      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS]
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
     volumes:
       - ./rabbitmqdata:/var/lib/rabbitmq
