@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 os.environ['clean_up_tokenization_spaces'] = "false"
 
-PATH_2_MODEL = "/tmp/models/output_topic_detector_service/"
+PATH_2_MODEL = "/models/output_topic_detector_service/"
 RANDOM_STATE = 42
 
 GLOBAL_MODEL = None
@@ -57,5 +57,7 @@ if __name__ == "__main__":
         "дурки?",
         "тупые",
         "молодцы",
-        "Вы молодцы"]:
-        print(check_toxic(i))
+        "Вы молодцы",
+        "Чтобы каждый день приносил удовольствие, важно уделять внимание своему сексуальному здоровью и общению с партнером. Регулярное обсуждение предпочтений и использование качественных средств могут помочь улучшить сексуальный опыт"
+    ]:
+        print(check_toxic(i)[0])

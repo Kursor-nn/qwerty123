@@ -8,18 +8,20 @@ all_texts = Counter('input_text', 'Number of all requests', labelnames=["toxic_c
 toxic_text = Counter('input_toxic_text', 'Number of toxic requests', labelnames=["toxic_client_id"])
 
 
-def validate(user: str, text: str, filter: str) -> ValidationResultsDto:
-    results = validate_component.validate(user, filter, text)
+def validate(user: str, text: str, input_filters: [str], output_filters: [str]) -> ValidationResultsDto:
+    results = validate_component.validate(user, input_filters[0], text)
     all_texts.labels(user).inc()
 
-    logger.info(f"Validate text for user '{user}' for '{filter}' and is toxic: '{results.is_toxic}'")
+    logger.info(f"Validate text for user '{user}' for '{input_filters}' and '{output_filters}' and is toxic: '{results.is_toxic}'")
 
     if results.is_toxic:
         toxic_text.labels(user).inc()
     else:
         response = llm_api.ask_yandex(text, user)
+        output = validate_component.validate(user, output_filters[0], text)
+
         return ValidationResultsDto(is_toxic=results.is_toxic, llm_answer=response.text, details=[
-            FilterResultDto(is_toxic=results.is_toxic, name=results.filter)
+            FilterResultDto(is_toxic=output.is_toxic, name=output.filter)
         ])
 
     return ValidationResultsDto(is_toxic=results.is_toxic, llm_answer="Неприемлемый запрос.", details=[

@@ -12,4 +12,4 @@ async def validate(
         request: InputTextDto,
         user: str = Depends(authenticate)
 ) -> ValidationResultsDto:
-    return firewall_service.validate(user, request.text, request.filter_type)
+    return firewall_service.validate(user, request.text, [request.filter_type], ["topic_detector"])

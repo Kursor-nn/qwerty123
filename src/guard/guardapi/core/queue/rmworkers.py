@@ -1,12 +1,12 @@
 import json
+import logging
 
-import loguru
 import pika
 from decouple import config
 from pydantic import ValidationError
 
 from common_consts import RABBIT_QUEUE
-from core.component import catboost_bert_toxic_service, general_check_text_service
+from core.component import catboost_bert_toxic_service, general_check_text_service, output_topic_detector_service
 from dto.message_request import ValidationMessage
 
 rabbitmq_connection_string = pika.ConnectionParameters(
@@ -30,6 +30,7 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
+        logging.error(body.decode('utf-8'))
         info = ValidationMessage(**json.loads(body.decode('utf-8')))
         if info.type == "toxic_filter":
             toxic_status, text = catboost_bert_toxic_service.check_toxic(info.text)
@@ -37,6 +38,9 @@ def prepare_data(ch, method, properties, body):
         elif info.type == "general_filter":
             toxic_status, text = general_check_text_service.check_toxic(info.text)
             return_results(ch, method, properties, toxic_status, text)
+        elif info.type == "topic_detector":
+            toxic_topic, text = output_topic_detector_service.check_toxic(info.text)
+            return_results(ch, method, properties, False, toxic_topic)
         else:
             return_results(ch, method, properties, None, None)
     except ValidationError as e:
@@ -51,6 +55,7 @@ def prepare_data(ch, method, properties, body):
     except Exception as e:
         correlation_id = properties.correlation_id
         reply_to = properties.reply_to
+        logging.error(e)
         ch.basic_publish(
             exchange='',
             routing_key=reply_to,
