@@ -100,6 +100,7 @@ services:
       - ./guard/gptadapter/.env
     environment:
       - PYTHONPATH=/app:/api:/app/gptadapter/
+      - YANDEX_GPT_PRIVATE_KEY=${YANDEX_GPT_PEM_PRIVATE_KEY}
 #      - GPT_ADAPTER_QUEUE=yandex-gpt-adapter-queue
 #      - YANDEX_GPT_MODEL_TYPE=yandexgpt
 #      - RABBIT_HOST=rabbitmq
@@ -114,7 +115,6 @@ services:
 #      - YANDEX_GPT_SERVICE_ACCOUNT_ID=aje3g0mlb97va6im8csm
 #      - YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID=ajegdqaoj192fqpeb1a2
 #      - YANDEX_GPT_IAM_URL=https://iam.api.cloud.yandex.net/iam/v1/tokens
-#      - YANDEX_GPT_PRIVATE_KEY=${YANDEX_GPT_PEM_PRIVATE_KEY}
     depends_on:
       rabbitmq:
         condition: service_started
