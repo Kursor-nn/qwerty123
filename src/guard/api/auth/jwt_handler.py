@@ -10,7 +10,6 @@ SECRET_KEY = config("SECRET_KEY")
 
 
 def create_access_token(user: str) -> str:
-    loguru.logger.info(f"SECRET_KEY > {SECRET_KEY}")
     payload = {"user": user, "expires": time.time() + 3600}
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
@@ -18,7 +17,6 @@ def create_access_token(user: str) -> str:
 
 def verify_access_token(token: str) -> dict:
     try:
-        loguru.logger.info(f"SECRET_KEY > {SECRET_KEY}")
         data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         expire = data.get("expires")
         if expire is None:

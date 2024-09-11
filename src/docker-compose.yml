@@ -191,10 +191,10 @@ services:
     env_file:
       - ./guard/common/.env
     environment:
-      #      POSTGRES_DB: productdb
-      #      POSTGRES_USER: admin
-      #      POSTGRES_PASSWORD: postgres
-      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: ${PGDATA}
     volumes:
       - ./postgresdata:/var/lib/postgresql/data
     ports:

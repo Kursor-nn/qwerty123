@@ -14,7 +14,6 @@ def make_sidebar():
         if access_token and access_token != "":
             user_name, logout_button = st.columns([3, 1])
             with user_name:
-                loguru.logger.info(f"verify_access_token(access_token) > {access_token}")
                 user = verify_access_token(access_token)
                 if "user" in user:
                     user_name = user["user"]

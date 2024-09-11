@@ -31,6 +31,7 @@ async def _startup():
 if __name__ == "__main__":
     queue = config(GPT_ADAPTER_QUEUE)
     logger.info(f"Start GPT Adapter Worker for {queue}")
+    logger.info("YANDEX_GPT_PRIVATE_KEY : " + config("YANDEX_GPT_PRIVATE_KEY"))
     run_adapter_queue_channel(config(RABBIT_HOST),
                               config(RABBIT_PORT),
                               config(RABBIT_USER),
