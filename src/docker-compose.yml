@@ -100,7 +100,7 @@ services:
       - ./guard/gptadapter/.env
     environment:
       - PYTHONPATH=/app:/api:/app/gptadapter/
-      - YANDEX_GPT_PRIVATE_KEY=${YANDEX_GPT_PEM_PRIVATE_KEY}
+      - "YANDEX_GPT_PRIVATE_KEY=${YANDEX_GPT_PEM_PRIVATE_KEY}"
 #      - GPT_ADAPTER_QUEUE=yandex-gpt-adapter-queue
 #      - YANDEX_GPT_MODEL_TYPE=yandexgpt
 #      - RABBIT_HOST=rabbitmq
