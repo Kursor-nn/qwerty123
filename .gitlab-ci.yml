@@ -1,10 +1,14 @@
 variables:
-  REPO_URL: "https://qwerty123.gitlab.yandexcloud.net/a.p.kozachuk/qwerty123.git"
+  REPO_URL: "github.com/Kursor-nn/qwerty123.git"
   REPO_DIR: "/home/gitlab-runner/qwerty123"
+  ENV_GUARD_FILE_PATH: "src/guard/app/.env"
+  ENV_GPTADAPTER_FILE_PATH: "src/guard/gptadapter/.env"
 
 
 stages:
   - get_repo          # List of stages for jobs, and their order of execution
+  - update_guard_env
+  - update_gptadapter_env
   - build
   - test
   - deploy
@@ -16,30 +20,96 @@ get-repo:
     - main
   script:
     - echo "Sync repo"
-    - git config --global url."https://${CI_DEPLOY_USER}:${CI_DEPLOY_PASSWORD}@qwerty123.gitlab.yandexcloud.net/a.p.kozachuk/qwerty123.git".insteadOf "$REPO_URL"
     - |
       if [ -d "$REPO_DIR" ]; then
         echo "Repository directory exists. Pulling latest changes..."
         cd $REPO_DIR
+        git reset --hard HEAD
         git pull origin main # or 'main', depending on your branch name
       else
         echo "Repository directory does not exist. Cloning..."
-        git clone $REPO_URL $REPO_DIR
+        git clone https://$GITHUB_KURSOR_TOKEN@$REPO_URL $REPO_DIR
         cd $REPO_DIR
       fi
   tags:
     - shared
+
+update_guard_env_file:
+  stage: update_guard_env
+  script:
+    - echo "Updating .env"
+    # Backup the existing .env file if it exists
+    - cd $REPO_DIR
+    - |
+      sed -i "s|^CONNECTION_URI=.*|CONNECTION_URI=${CONNECTION_URI}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^SECRET_KEY=.*|SECRET_KEY=${SECRET_KEY}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^RABBIT_PASSWORD *=.*|RABBIT_PASSWORD=${RABBIT_PASSWORD}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^RABBIT_PORT *=.*|RABBIT_PORT=${RABBIT_PORT}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^TELEGRAM_BOT_TOKEN *=.*|TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^GRAFANA_SERVICE_TOKEN *=.*|GRAFANA_SERVICE_TOKEN=${GRAFANA_SERVICE_TOKEN}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^GRAFANA_FOLDER_UID *=.*|GRAFANA_FOLDER_UID=${GRAFANA_FOLDER_UID}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^BACKEND_HOST=.*|BACKEND_HOST=${BACKEND_HOST}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^LLM_ADAPTER_ENDPOINT=.*|LLM_ADAPTER_ENDPOINT=${LLM_ADAPTER_ENDPOINT}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^GPT_ADAPTER_QUEUE=.*|GPT_ADAPTER_QUEUE=${GPT_ADAPTER_QUEUE}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^RABBIT_QUEUE=.*|RABBIT_QUEUE=${RABBIT_QUEUE}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^RABBIT_USER=.*|RABBIT_USER=${RABBIT_USER}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^RABBIT_HOST=.*|RABBIT_USER=${RABBIT_HOST}|g" $ENV_GUARD_FILE_PATH
+      sed -i "s|^SECRET_KEY=.*|RABBIT_USER=${SECRET_KEY}|g" $ENV_GUARD_FILE_PATH
+  tags:
+    - shared
+
+      #update_gptadapter_env_file:
+      #  stage: update_gptadapter_env
+      #  script:
+      #    - echo "Updating .env"
+      #    # Backup the existing .env file if it exists
+      #    - cd $REPO_DIR
+      #    - |
+      #      if [ ! -f "$ENV_GPTADAPTER_FILE_PATH" ]; then
+      #        echo "create new file .env"
+      #        touch "$ENV_GPTADAPTER_FILE_PATH"
+      #      fi
+
+      #      update_or_add_env_variable() {
+      #        local key="$1"
+      #        local value="$2"
+      #        local file="$3"
+      #        if grep -q "^${key}=" "$file"; then
+      #          # update
+      #          sed -i "s|^${key}=.*|${key}=${value}|g" "$file"
+      #        else
+      #          # add value
+      #          echo "${key}=${value}" >> "$file"
+      #        fi
+      #      }
+      #
+    # update
+#      update_or_add_env_variable "CONNECTION_URI" "${CONNECTION_URI}" "$ENV_GPTADAPTER_FILE_PATH"
+#      update_or_add_env_variable "SECRET_KEY" "${SECRET_KEY}" "$ENV_GPTADAPTER_FILE_PATH"
+#      update_or_add_env_variable "RABBIT_PASSWORD" "${RABBIT_PASSWORD}" "$ENV_GPTADAPTER_FILE_PATH"
+#      update_or_add_env_variable "YANDEX_GPT_CATALOG_ID" "${YANDEX_GPT_CATALOG_ID}" "$ENV_GPTADAPTER_FILE_PATH"
+#      update_or_add_env_variable "YANDEX_GPT_SERVICE_ACCOUNT_ID" "${YANDEX_GPT_SERVICE_ACCOUNT_ID}" "$ENV_GPTADAPTER_FILE_PATH"
+#      update_or_add_env_variable "YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID" "${YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID}" "$ENV_GPTADAPTER_FILE_PATH"
+#      update_or_add_env_variable "YANDEX_GPT_PEM_PRIVATE_KEY" "${YANDEX_GPT_PEM_PRIVATE_KEY}" "$ENV_GPTADAPTER_FILE_PATH"
+#
+#      # sed -i "s|^YANDEX_GPT_CATALOG_ID=.*|YANDEX_GPT_CATALOG_ID=${YANDEX_GPT_CATALOG_ID}|g" $ENV_GPTADAPTER_FILE_PATH
+#      # sed -i "s|^YANDEX_GPT_SERVICE_ACCOUNT_ID=.*|YANDEX_GPT_SERVICE_ACCOUNT_ID=${YANDEX_GPT_SERVICE_ACCOUNT_ID}|g" $ENV_GPTADAPTER_FILE_PATH
+#      # sed -i "s|^YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID *=.*|YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID=${YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID}|g" $ENV_GPTADAPTER_FILE_PATH
+#      # sed -i "s|^YANDEX_GPT_PRIVATE_KEY *=.*|YANDEX_GPT_PRIVATE_KEY=${YANDEX_GPT_PRIVATE_KEY}|g" $ENV_GPTADAPTER_FILE_PATH
+#  tags:
+#    - shared
+
+
+
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - echo "Compiling the code..."
     - echo "Compile complete."
-    - whoami
-    - hostname
-    - docker ps -a
   tags:
     - shared
+
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
