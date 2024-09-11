@@ -1,0 +1,130 @@
+  # Create the new 'susers' table if it does not already exist
+  - changeSet:
+      id: 1
+      author: author_name
+      preConditions:
+        onFail: "MARK_RAN"
+        onError: "MARK_RAN"
+        not:
+          tableExists:
+            tableName: "susers"
+      changes:
+        - createTable:
+            tableName: susers
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: login
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: role
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+  # Create the 'features' table if it does not already exist
+  - changeSet:
+      id: 2
+      author: author_name
+      preConditions:
+        onFail: "MARK_RAN"
+        onError: "MARK_RAN"
+        not:
+          tableExists:
+            tableName: "features"
+      changes:
+        - createTable:
+            tableName: features
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: text
+                  constraints:
+                    nullable: false
+
+  # Create the 'user_features' table with foreign key constraints if it does not already exist
+  - changeSet:
+      id: 3
+      author: author_name
+      preConditions:
+        onFail: "MARK_RAN"
+        onError: "MARK_RAN"
+        not:
+          tableExists:
+            tableName: "user_features"
+      changes:
+        - createTable:
+            tableName: user_features
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: integer
+                  constraints:
+                    nullable: true
+              - column:
+                  name: feature_type_id
+                  type: integer
+                  constraints:
+                    nullable: true
+              - column:
+                  name: config
+                  type: text
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: user_features
+            baseColumnNames: user_id
+            constraintName: fk_user_features_user
+            referencedTableName: susers
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: user_features
+            baseColumnNames: feature_type_id
+            constraintName: fk_user_features_feature
+            referencedTableName: features
+            referencedColumnNames: id
