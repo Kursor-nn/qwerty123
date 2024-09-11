@@ -1,3 +1,4 @@
+import loguru
 from fastapi import APIRouter, Depends
 
 from api.dto.ProfileDto import ProfileInfo
@@ -21,6 +22,7 @@ async def create_new_user(
 async def sign_user_in(
         request: SigninRequest
 ) -> dict:
+    loguru.logger.info(f"{request.login}, {request.password}")
     return signin(request.login, request.password)
 
 

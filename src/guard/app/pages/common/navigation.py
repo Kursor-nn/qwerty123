@@ -1,5 +1,6 @@
 from time import sleep
 
+import loguru
 import streamlit as st
 
 from auth.jwt_handler import verify_access_token
@@ -13,9 +14,12 @@ def make_sidebar():
         if access_token and access_token != "":
             user_name, logout_button = st.columns([3, 1])
             with user_name:
-                user = verify_access_token(access_token)["user"]
-                if st.button(f"{user} profile", use_container_width=True):
-                    st.switch_page("pages/profile.py")
+                loguru.logger.info(f"verify_access_token(access_token) > {access_token}")
+                user = verify_access_token(access_token)
+                if "user" in user:
+                    user_name = user["user"]
+                    if st.button(f"{user_name} profile", use_container_width=True):
+                        st.switch_page("pages/profile.py")
 
             with logout_button:
                 if st.button("Logout", type="primary"):
@@ -39,6 +43,5 @@ def make_sidebar():
 
 def logout():
     cookie_manager.set("access_token", "")
-    st.info("Logged out successfully!")
     sleep(0.5)
     st.switch_page("home.py")

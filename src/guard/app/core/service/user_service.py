@@ -1,3 +1,4 @@
+import loguru
 from fastapi import HTTPException, Depends, status
 
 from auth.hash_password import HashPassword
@@ -62,6 +63,7 @@ def signin(login: str, password: str, session=get_session()):
         access_token = create_access_token(user_exist.login)
         return {"access_token": access_token, "token_type": "Bearer"}
 
+    loguru.logger.info("USER_CREDS_ARE_WRONG > " + str(USER_CREDS_ARE_WRONG))
     raise USER_CREDS_ARE_WRONG
 
 

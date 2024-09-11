@@ -19,15 +19,17 @@ services:
       - ./guard/api:/api
     environment:
       - PYTHONPATH=/app:/api:/app/app/
-      - GRAFANA_ENDPOINT=http://grafana:3000
-      - COOKIE_NAME="cookie_name"
-      - RABBIT_HOST="rabbitmq"
-      - RABBIT_PORT="5672"
-      - RABBIT_USER="admin"
-      - RABBIT_QUEUE="message"
-      - BACKEND_HOST="http://app:8081"
-      - DATA_ROOT_PATH="/data"
-      - PROMETHEUS_ENDPOINT="http://prometheus:9090"
+      - COOKIE_NAME=cookie_name
+#      - CONNECTION_URI=postgresql+psycopg2://admin:postgres@database:5432/productdb
+#      - SECRET_KEY=123123
+#      - GRAFANA_ENDPOINT=http://grafana:3000
+#     - RABBIT_HOST=rabbitmq
+#      - RABBIT_PORT=5672
+#      - RABBIT_USER=admin
+#      - RABBIT_QUEUE=message
+#      - BACKEND_HOST=http://app:8081
+#      - DATA_ROOT_PATH=/data
+#      - PROMETHEUS_ENDPOINT=http://prometheus:9090
     command: python app.py
     depends_on:
       rabbitmq:
@@ -45,20 +47,18 @@ services:
       - ./guard/source/models:/models/
       - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/app.py
-    env_file:
-      - ./guard/guardapi/.env
     environment:
-      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
-      - SECRET_KEY=123123
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=admin
-      - RABBIT_PASSWORD=admin
-      - RABBIT_QUEUE=message
-      - GPT_ADAPTER_QUEUE=yandex-gpt-adapter-queue
       - PYTHONPATH=/app:/api:/app/guardapi/
-      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
-      - BACKEND_HOST="http://web-proxy:80"
+#      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
+#      - SECRET_KEY=123123
+#     - RABBIT_HOST=rabbitmq
+#     - RABBIT_PORT=5672
+#      - RABBIT_USER=admin
+#     - RABBIT_PASSWORD=admin
+#     - RABBIT_QUEUE=message
+#     - GPT_ADAPTER_QUEUE=yandex-gpt-adapter-queue
+#      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
+#      - BACKEND_HOST="http://web-proxy:80"
     depends_on:
       rabbitmq:
         condition: service_started
@@ -73,16 +73,15 @@ services:
       - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/core/queue/rmworkers.py
     environment:
-      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
-      - SECRET_KEY="123123"
-      - RABBIT_PASSWORD="admin"
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=admin
-      - RABBIT_QUEUE=message
-      - RABBIT_PASSWORD=admin
       - PYTHONPATH=/app:/api:/app/guardapi/
-      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
+#      - RABBIT_HOST=rabbitmq
+#      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
+#      - SECRET_KEY=123123
+#      - RABBIT_PORT=5672
+#      - RABBIT_USER=admin
+#      - RABBIT_QUEUE=message
+#      - RABBIT_PASSWORD=admin
+#      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
     depends_on:
       rabbitmq:
         condition: service_started
@@ -100,22 +99,22 @@ services:
     env_file:
       - ./guard/gptadapter/.env
     environment:
-      - CONNECTION_URI=postgresql+psycopg2://admin:postgres@database:5432/productdb
-      - SECRET_KEY=123123
-      - RABBIT_HOST=rabbitmq
-      - RABBIT_PORT=5672
-      - RABBIT_USER=admin
-      - RABBIT_QUEUE=message
       - PYTHONPATH=/app:/api:/app/gptadapter/
-      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
-      - GPT_ADAPTER_QUEUE=yandex-gpt-adapter-queue
-      - YANDEX_GPT_MODEL_TYPE=yandexgpt
-      - YANDEX_GPT_IAM_URL=https://iam.api.cloud.yandex.net/iam/v1/tokens
-      - GPT_ADAPTER_QUEUE="yandex-gpt-adapter-queue"
-      - YANDEX_GPT_CATALOG_ID=b1gqlr305ppp2d5usta6
-      - YANDEX_GPT_SERVICE_ACCOUNT_ID=aje3g0mlb97va6im8csm
-      - YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID=ajegdqaoj192fqpeb1a2
-      - YANDEX_GPT_IAM_URL=https://iam.api.cloud.yandex.net/iam/v1/tokens
+#      - GPT_ADAPTER_QUEUE=yandex-gpt-adapter-queue
+#      - YANDEX_GPT_MODEL_TYPE=yandexgpt
+#      - RABBIT_HOST=rabbitmq
+#      - RABBIT_PORT=5672
+#      - CONNECTION_URI=postgresql+psycopg2://admin:postgres@database:5432/productdb
+#      - SECRET_KEY=123123
+#      - RABBIT_USER=admin
+#      - RABBIT_PASSWORD=admin
+#      - RABBIT_QUEUE=message
+#      - LLM_ADAPTER_ENDPOINT=http://llm-gpt-adapter:8081
+#      - YANDEX_GPT_CATALOG_ID=b1gqlr305ppp2d5usta6
+#      - YANDEX_GPT_SERVICE_ACCOUNT_ID=aje3g0mlb97va6im8csm
+#      - YANDEX_GPT_SERVICE_ACCOUNT_KEY_ID=ajegdqaoj192fqpeb1a2
+#      - YANDEX_GPT_IAM_URL=https://iam.api.cloud.yandex.net/iam/v1/tokens
+#      - YANDEX_GPT_PRIVATE_KEY=${YANDEX_GPT_PEM_PRIVATE_KEY}
     depends_on:
       rabbitmq:
         condition: service_started
@@ -127,8 +126,9 @@ services:
       - ./guard/app/.env
     environment:
       - PYTHONPATH=/api:/app:/app/api:/app/app/
-      - BACKEND_HOST=http://web-proxy:80
-      - PROMETHEUS_ENDPOINT=http://prometheus:9090
+#      - BACKEND_HOST=http://web-proxy:80
+#      - PROMETHEUS_ENDPOINT=http://prometheus:9090
+#      - SECRET_KEY=123123
     volumes:
       - ./guard/:/app
     command: streamlit run app/home.py --server.port=8501 --server.address=0.0.0.0
@@ -144,8 +144,8 @@ services:
     hostname: rabbitmq
     restart: on-failure
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin
+#      - RABBITMQ_DEFAULT_USER=admin
+#      - RABBITMQ_DEFAULT_PASS=admin
       - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
     volumes:
       - ./rabbitmqdata:/var/lib/rabbitmq
@@ -184,10 +184,12 @@ services:
   database:
     image: postgres:13.3
     hostname: database
+    env_file:
+      - ./guard/common/.env
     environment:
-      POSTGRES_DB: productdb
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: productdb
+#      POSTGRES_USER: admin
+#      POSTGRES_PASSWORD: postgres
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - ./postgresdata:/var/lib/postgresql/data

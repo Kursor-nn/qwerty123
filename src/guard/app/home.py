@@ -8,9 +8,7 @@ from pages.widgets.basic_widgets import display_24_hours, display_notifications_
 from pages.widgets.reg_sign_widgets import display_start_page
 
 st.set_page_config(
-    **{"page_title": "Йцукен123",
-       "layout": "centered",
-       "initial_sidebar_state": "auto"}
+    **{"page_title": "Йцукен123", "layout": "centered", "initial_sidebar_state": "auto"}
 )
 
 make_sidebar()
