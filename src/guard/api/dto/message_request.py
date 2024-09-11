@@ -3,10 +3,13 @@ from pydantic import BaseModel
 
 class ValidationMessage(BaseModel):
     text: str = None
+    type: str = None
+    user: str = None
 
-    def __init__(self, text: str, **data):
+    def __init__(self, text: str, type: str, user: str, **data):
         super().__init__(**data)
         self.text = text
+        self.type = type
 
 
 class ValidationResultMessage(BaseModel):

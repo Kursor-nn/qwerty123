@@ -13,7 +13,9 @@ class LlmAnswerDto(BaseModel):
 
 class LlmRequestDto(BaseModel):
     text: str = None
+    user: str = None
 
-    def __init__(self, text: str, **data):
+    def __init__(self, text: str, user: str, **data):
         super().__init__(**data)
         self.text = text
+        self.user = user

@@ -1,43 +1,10 @@
-from fastapi import APIRouter, HTTPException, status, Depends
-from prometheus_client import Counter
+from fastapi import APIRouter, Depends
 
 from auth.authenticate import authenticate
-from core.component import validate_component, llm_api
-from dto.alerts import AlertMessage
-from dto.api_dto import InputTextDto, ValidationResultsDto, FilterResultDto
-
-# registry = CollectorRegistry()
-
-
-all_texts = Counter('input_text', 'Number of all requests', labelnames=["toxic_client_id"])
-toxic_text = Counter('input_toxic_text', 'Number of toxic requests', labelnames=["toxic_client_id"])
+from core.service import firewall_service
+from dto.api_dto import InputTextDto, ValidationResultsDto
 
 message_router = APIRouter(tags=["Messages"])
-
-EMAIL_EXISTS = HTTPException(
-    status_code=status.HTTP_409_CONFLICT, detail="User with email provided exists already.",
-)
-
-REG_REQUEST_IS_BROKEN = HTTPException(
-    status_code=400, detail="Login, Email and password must be filled",
-)
-
-USER_IS_NOT_EXIST = HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
-)
-
-USER_CREDS_ARE_WRONG = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid details passed."
-)
-
-
-@message_router.post("/check", response_model=ValidationResultsDto)
-async def validate(
-        alarm: AlertMessage
-) -> ValidationResultsDto:
-    return ValidationResultsDto(is_toxic=False, details=[
-        FilterResultDto(is_toxic=False, name="asdasd")
-    ])
 
 
 @message_router.post("/validate", response_model=ValidationResultsDto)
@@ -45,19 +12,4 @@ async def validate(
         request: InputTextDto,
         user: str = Depends(authenticate)
 ) -> ValidationResultsDto:
-    results = validate_component.validate(request.filter_type, request.text)
-    all_texts.labels(user).inc()
-
-    print("After validation 2: ", results)
-
-    if results.is_toxic:
-        toxic_text.labels(user).inc()
-    else:
-        response = llm_api.ask_yandex(request.text)
-        return ValidationResultsDto(is_toxic=results.is_toxic, llm_answer=response.text, details=[
-            FilterResultDto(is_toxic=results.is_toxic, name=results.filter)
-        ])
-
-    return ValidationResultsDto(is_toxic=results.is_toxic, llm_answer="Неприемлемый запрос.", details=[
-        FilterResultDto(is_toxic=results.is_toxic, name=results.filter)
-    ])
+    return firewall_service.validate(user, request.text, request.filter_type)

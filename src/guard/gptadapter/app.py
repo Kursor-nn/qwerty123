@@ -1,4 +1,3 @@
-import uvicorn
 from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,4 +37,4 @@ if __name__ == "__main__":
                               config(RABBIT_PASSWORD),
                               queue)
     logger.info(f"Start Rest Adapter Worker for {queue}")
-    uvicorn.run("app:app", host="0.0.0.0", port=8081, reload=True)
+    # uvicorn.run("app:app", host="0.0.0.0", port=8081, reload=True)

@@ -3,7 +3,7 @@ from loguru import logger
 from pika.adapters.blocking_connection import BlockingChannel
 
 
-async def build_rabbit_channel(host, port, user, password, queue, callback) -> BlockingChannel:
+def build_rabbit_channel(host, port, user, password, queue, callback) -> BlockingChannel:
     logger.info(f"Run gpt-adapter queue '{queue}' handler: {user}@{host}:{port}")
 
     rabbitmq_connection_string = pika.ConnectionParameters(

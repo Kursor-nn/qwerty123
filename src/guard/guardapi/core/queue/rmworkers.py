@@ -1,11 +1,13 @@
 import json
 
+import loguru
 import pika
 from decouple import config
 from pydantic import ValidationError
 
 from common_consts import RABBIT_QUEUE
 from core.component import catboost_bert_toxic_service, general_check_text_service
+from dto.message_request import ValidationMessage
 
 rabbitmq_connection_string = pika.ConnectionParameters(
     host="rabbitmq",
@@ -28,12 +30,12 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
-        info = json.loads(body.decode('utf-8'))
-        if info["type"] == "toxic_filter":
-            toxic_status, text = catboost_bert_toxic_service.check_toxic(info["message"])
+        info = ValidationMessage(**json.loads(body.decode('utf-8')))
+        if info.type == "toxic_filter":
+            toxic_status, text = catboost_bert_toxic_service.check_toxic(info.text)
             return_results(ch, method, properties, toxic_status, text)
-        elif info["type"] == "general_filter":
-            toxic_status, text = general_check_text_service.check_toxic(info["message"])
+        elif info.type == "general_filter":
+            toxic_status, text = general_check_text_service.check_toxic(info.text)
             return_results(ch, method, properties, toxic_status, text)
         else:
             return_results(ch, method, properties, None, None)
@@ -53,7 +55,7 @@ def prepare_data(ch, method, properties, body):
             exchange='',
             routing_key=reply_to,
             properties=pika.BasicProperties(correlation_id=correlation_id),
-            body=json.dumps({"is_toxic": False, "filter": "common error >> : " + "info: " + body.decode('utf-8') + " > " + str(e)})
+            body=json.dumps({"is_toxic": False, "filter": "common error"})
         )
 
 

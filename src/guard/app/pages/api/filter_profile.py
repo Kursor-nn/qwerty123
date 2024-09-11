@@ -1,4 +1,5 @@
 import httpx
+import loguru
 from decouple import config
 
 from core.cookies.cookies import get_cookie_manager

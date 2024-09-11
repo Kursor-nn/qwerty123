@@ -4,7 +4,7 @@ import streamlit as st
 
 from core.cookies.cookies import cookie_manager
 from pages.api import filter_profile
-
+from loguru import logger
 
 def make_sidebar():
     access_token = cookie_manager.get("access_token")

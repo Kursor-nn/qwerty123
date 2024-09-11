@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
+from loguru import logger
 
 from core.routes.messages import message_router
 
@@ -26,4 +27,5 @@ async def _startup():
 
 
 if __name__ == "__main__":
+    logger.info("Start Guard API Service")
     uvicorn.run("app:app", host="0.0.0.0", port=8081, reload=True)

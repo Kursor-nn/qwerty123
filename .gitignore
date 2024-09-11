@@ -6,3 +6,4 @@
 src/app/.env
 out
 .cursorignore
+.vscode/
