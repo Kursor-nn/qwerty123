@@ -1,6 +1,5 @@
 from time import sleep
 
-import loguru
 import streamlit as st
 
 from auth.jwt_handler import verify_access_token
@@ -14,7 +13,11 @@ def make_sidebar():
         if access_token and access_token != "":
             user_name, logout_button = st.columns([3, 1])
             with user_name:
-                user = verify_access_token(access_token)
+                try:
+                    user = verify_access_token(access_token)
+                except Exception as e:
+                    logout()
+
                 if "user" in user:
                     user_name = user["user"]
                     if st.button(f"{user_name} profile", use_container_width=True):
