@@ -47,6 +47,8 @@ services:
       - ./guard/source/models:/models/
       - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/app.py
+    env_file:
+      - ./guard/guardapi/.env
     environment:
       - PYTHONPATH=/app:/api:/app/guardapi/
 #      - CONNECTION_URI="postgresql+psycopg2://admin:postgres@database:5432/productdb"
@@ -72,6 +74,8 @@ services:
       - ./guard/source/models:/models/
       - ./guard/source/hg:/root/.cache/huggingface/
     command: python guardapi/core/queue/rmworkers.py
+    env_file:
+      - ./guard/guardapi/.env
     environment:
       - PYTHONPATH=/app:/api:/app/guardapi/
 #      - RABBIT_HOST=rabbitmq
