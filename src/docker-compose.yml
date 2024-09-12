@@ -201,6 +201,18 @@ services:
     ports:
       - 5432:5432
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui:latest
+    hostname: swagger-ui
+    ports:
+      - "8085:8080"
+    volumes:
+      - ./docs:/spec
+    environment:
+      - CORS=true
+      - SWAGGER_JSON=/spec/swagger.yaml
+      - BASE_URL=/swagger
+
 volumes:
   prometheus_data: { }
   grafana_data: { }

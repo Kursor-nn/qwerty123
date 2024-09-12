@@ -1,61 +1,133 @@
 openapi: 3.0.3
 info:
-  title: Device Controller
+  title: Qwerty123 Controller
   description: Sync API Description
   version: "0.0.1"
-tags:
-  - name: device
-    description: Device
 servers:
   - url: http://localhost:80/
-    description: test server
+    description: local server
+  - url: http://demo.kozachuk.tech:80/
+    description: demo server
+
+tags:
+  - name: user
+    description: User Info
+  - name: validation
+    description: Analyze text
 paths:
-  /devices/{id}:
-    get:
+  /api/user/register:
+    post:
       tags:
-        - device
+        - user
       security:
         - bearerAuth: [ ]
-      summary: get device info
+      summary: register user
       operationId: get
-      parameters:
-        - $ref: '#/components/parameters/id'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewUser"
       responses:
         200:
           description: device info
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Device"
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
+                $ref: "#/components/schemas/SuccessResponse"
         403:
           $ref: '#/components/responses/ForbiddenError'
-    delete:
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /api/user/signin:
+    post:
       tags:
-        - device
+        - user
       security:
         - bearerAuth: [ ]
-      summary: Удалить устройство по его id
-      operationId: delete
-      parameters:
-        - $ref: '#/components/parameters/id'
+      summary: signin user
+      operationId: post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SigninRequest"
       responses:
         200:
-          description: Delete device
+          description: device info
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Device"
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
+                $ref: "#/components/schemas/TokenResponse"
         403:
           $ref: '#/components/responses/ForbiddenError'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /api/user/profile:
+    get:
+      tags:
+        - user
+      security:
+        - bearerAuth: [ ]
+      summary: get profile configuration
+      operationId: get
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SigninRequest"
+      responses:
+        200:
+          description: profile info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileInfo"
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /api/user/profile/feature:
+    post:
+      tags:
+        - user
+      security:
+        - bearerAuth: [ ]
+      summary: toggle feature
+      operationId: post
+      responses:
+        200:
+          description: toggle feature
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        500:
+          $ref: '#/components/responses/ServerError'
 
+  /api/guard/validate:
+    post:
+      tags:
+        - user
+      security:
+        - bearerAuth: [ ]
+      summary: toggle feature
+      operationId: post
+      responses:
+        200:
+          description: toggle feature
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        400:
+          $ref: '#/components/responses/BadRequestError'
+        500:
+          $ref: '#/components/responses/ServerError'
 components:
   responses:
     UnauthorizedError:
@@ -64,34 +136,14 @@ components:
       description: Не удалось разобрать запрос
     ForbiddenError:
       description: У пользователя нет доступа к операции
-    NotFoundError:
-      description: Запрошенный объект не найден
+    ServerError:
+      description: Ошибка Сервера
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
   parameters:
-    pageNumber:
-      in: query
-      name: page
-      schema:
-        type: integer
-        example: 0
-    pageSize:
-      in: query
-      name: size
-      schema:
-        type: integer
-        example: 10
-        default: 10
-    offset:
-      in: query
-      name: size
-      schema:
-        type: integer
-        example: 10
-        default: 0
     id:
       in: path
       name: id
@@ -100,87 +152,118 @@ components:
       required: true
       description: object id
   schemas:
-    Action:
+    NewUser:
       type: object
       properties:
-        command:
+        login:
           type: string
-          example: to_do_something
-    DeviceType:
+          example: "test"
+        email:
+          type: string
+          example: "test@test.com"
+        password:
+          type: string
+          example: "qwerty123"
+    SigninRequest:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        name:
+        login:
           type: string
-          example: "Some usefull device"
-        manufactory:
+          example: "test"
+        password:
           type: string
-          example: "aqara"
-    DeviceStatus:
+          example: "qwerty123"
+    TokenResponse:
       type: object
       properties:
-        status:
+        access_token:
           type: string
-          example: "in-work"
-        last_update:
-          type: datetime
-          example: "2024-08-24T12:00:00"
-    TelemetryData:
+          example: "test"
+        token_type:
+          type: string
+          example: "qwerty123"
+    SuccessResponse:
       type: object
       properties:
-        id:
-          type: number
-          example: "123"
-        device_id:
-          type: number
-          example: "456"
-        value_name:
-          type: number
-          example: "some_parameters"
-        value:
+        message:
+          type: string
+          example: "success registration"
+    UserFeatureDto:
+      type: object
+      properties:
+        feature_type_id:
           type: number
           example: "1"
-        datetime:
-          type: datetime
-          example: "2024-08-24T12:00:00"
-    Device:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
         name:
           type: string
-          example: "123456"
-          default: "123456"
+          example: "Request Topic Filter"
         type:
+          type: number
+          example: 1
+        enabled:
+          type: boolean
+          example: true
+        config:
           type: string
-          example: "temperature"
-          default: "temperature"
-        serialNumber:
-          type: string
-          example: "123345"
-          default: "123345"
-        modelName:
-          type: string
-          example: "amazing-model"
-          default: "amazing-model"
-        manufacturer:
-          type: string
-          example: "amazing-manufacturer"
-          default: "amazing-manufacturer"
-    PaginatedResult:
+          example: "{'values': 123}"
+    ProfileInfo:
       type: object
       properties:
-        page: { type: number, example: 3 }
-        pages: { type: number, example: 5 }
-        size: { type: number, example: 20 }
-        total: { type: number, example: 100 }
-        results: { type: array, items: { } }
+        username:
+          type: string
+          example: "test"
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserFeatureDto"
+    FeatureToggleDto:
+      type: object
+      properties:
+        feature_type_id:
+          type: number
+          example: 1
+        value:
+          type: bool
+          example: false
+        chat_name:
+          type: string
+          example: "amaing-topic-id"
+    InputTextDto:
+      type: object
+      properties:
+        text:
+          type: string
+          example: "some text to check =)"
+    FilterResultDto:
+      type: object
+      properties:
+        is_toxic:
+          type: boolean
+          example: false
+        details:
+          type: object
+          example: { "check1": false }
+    ValidationResultsDto:
+      type: object
+      properties:
+        is_toxic:
+          type: boolean
+          example: false
+        question:
+          type: string
+          example: "Привет! Как дела? =))"
+        llm_answer:
+          type: string
+          example: "Привет! Хорошо. А у вас как?"
+        input_validation:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterResultDto"
+        answer_validation:
+          type: array
+          items:
+            $ref: "#/components/schemas/FilterResultDto"
+
 
 security:
   - bearerAuth: [ ]
