@@ -30,27 +30,36 @@ channel.queue_declare(queue=config(RABBIT_QUEUE))
 
 def prepare_data(ch, method, properties, body):
     try:
-        logging.error(body.decode('utf-8'))
+        logging.info(body.decode('utf-8'))
         info = ValidationMessage(**json.loads(body.decode('utf-8')))
-        if info.type == "toxic_filter":
-            toxic_status, text = catboost_bert_toxic_service.check_toxic(info.text)
-            return_results(ch, method, properties, toxic_status, text)
-        elif info.type == "general_filter":
-            toxic_status, text = general_check_text_service.check_toxic(info.text)
-            return_results(ch, method, properties, toxic_status, text)
-        elif info.type == "topic_detector":
-            toxic_topic, text = output_topic_detector_service.check_toxic(info.text)
-            return_results(ch, method, properties, False, toxic_topic)
-        else:
-            return_results(ch, method, properties, None, None)
+        results = {}
+        is_toxic = False
+        for i in info.filters:
+            if i == "toxic_filter":
+                toxic_status, text = catboost_bert_toxic_service.check_toxic(info.text)
+                results[i] = toxic_status
+                is_toxic = is_toxic or toxic_status
+                logging.info(f"{i} : {is_toxic} {toxic_status}")
+            elif i == "general_filter":
+                toxic_status, text = general_check_text_service.check_toxic(info.text)
+                results[i] = toxic_status
+                is_toxic = is_toxic or toxic_status
+                logging.info(f"{i} : {is_toxic} {toxic_status}")
+            elif i == "topic_detector":
+                topic, text = output_topic_detector_service.check_toxic(info.text)
+                results[i] = topic
+                logging.info(f"{i} : {is_toxic} {topic}")
+
+        return_results(ch, method, properties, is_toxic, results)
     except ValidationError as e:
         correlation_id = properties.correlation_id
         reply_to = properties.reply_to
+        logging.error(e)
         ch.basic_publish(
             exchange='',
             routing_key=reply_to,
             properties=pika.BasicProperties(correlation_id=correlation_id),
-            body=json.dumps({"is_toxic": False, "filter": "validation error"})
+            body=json.dumps({"is_toxic": False, "message": "validation error"})
         )
     except Exception as e:
         correlation_id = properties.correlation_id
@@ -60,7 +69,7 @@ def prepare_data(ch, method, properties, body):
             exchange='',
             routing_key=reply_to,
             properties=pika.BasicProperties(correlation_id=correlation_id),
-            body=json.dumps({"is_toxic": False, "filter": "common error"})
+            body=json.dumps({"is_toxic": False, "message": "common error"})
         )
 
 
@@ -73,7 +82,7 @@ def return_results(ch, method, properties, toxic_status, text):
         routing_key=reply_to,
         properties=pika.BasicProperties(correlation_id=correlation_id),
 
-        body=json.dumps({"is_toxic": toxic_status, "filter": text})
+        body=json.dumps({"is_toxic": toxic_status, "details": text})
     )
 
 

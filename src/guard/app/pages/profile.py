@@ -15,7 +15,7 @@ if not access_token:
 
 profile_info = get_profile_info()
 
-filters = [i for i in profile_info.features if i.type == "filter"]
+filters = [i for i in profile_info.features if i.type == "filter" or i.type == "filter_mode"]
 notifications = [i for i in profile_info.features if i.type == "notification"]
 stats = [i for i in profile_info.features if i.type == "statis"]
 threshold = [i for i in profile_info.features if i.type == "threshold"]
@@ -44,7 +44,19 @@ with home_tab:
     build_check_box_for("Home page configuration", stats)
 
 with filters_tab:
-    build_check_box_for("Filters List", filters)
+    input_columns, output_columns = st.columns(2)
+
+    input_filters = [i for i in filters if "Request" in i.name]
+    output_filters = [i for i in filters if "Answer" in i.name]
+
+    another_filters = [i for i in filters if i.type == "filter_mode"]
+    build_check_box_for("Filter Modes", another_filters)
+
+    with input_columns:
+        build_check_box_for("Input filters List", input_filters)
+
+    with output_columns:
+        build_check_box_for("Output filters List", output_filters)
 
 with notifications_tab:
     build_check_box_for("Notifications", notifications)

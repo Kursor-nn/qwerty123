@@ -3,20 +3,24 @@ from pydantic import BaseModel
 
 class ValidationMessage(BaseModel):
     text: str = None
-    type: str = None
     user: str = None
+    filters: list[str] = list()
 
-    def __init__(self, text: str, type: str, user: str, **data):
+    def __init__(self, text: str, user: str, filters: list[str] = [], **data):
         super().__init__(**data)
         self.text = text
-        self.type = type
+        self.user = user
+        self.filters = filters
 
 
 class ValidationResultMessage(BaseModel):
     is_toxic: bool = True
+    message: str = None
+    details: dict = {}
     filter: str = None
 
-    def __init__(self, is_toxic: bool, filter: str, **data):
+    def __init__(self, is_toxic: bool, message: str = "", details: dict = {}, filter: str = "", **data):
         super().__init__(**data)
         self.is_toxic = is_toxic
-        self.filter = filter
+        self.message = message
+        self.details = details

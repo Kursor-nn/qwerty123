@@ -1,11 +1,11 @@
 import loguru
 from fastapi import APIRouter, Depends
 
-from api.dto.ProfileDto import ProfileInfo
-from api.dto.features_dto import FeatureToggleDto
 from auth.authenticate import authenticate
 from core.component.profile_component import get_features, toggle_feature
 from core.service.user_service import create_new_user, signin
+from dto.ProfileDto import ProfileInfo
+from dto.features_dto import FeatureToggleDto
 from dto.user_dto import NewUser, SuccessResponse, TokenResponse, SigninRequest
 
 user_router = APIRouter(tags=["User"])
@@ -32,6 +32,16 @@ async def profile(
 ) -> ProfileInfo:
     return ProfileInfo(
         username=user, features=[data.__dict__ for data in get_features(user)]
+    )
+
+
+@user_router.get("/profile/features/{type}", response_model=ProfileInfo)
+async def profile(
+        type: str,
+        user: str = Depends(authenticate)
+) -> ProfileInfo:
+    return ProfileInfo(
+        username=user, features=[data.__dict__ for data in get_features(user) if data.name == type]
     )
 
 

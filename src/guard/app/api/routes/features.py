@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from api.dto.features_dto import FeatureConfigDto, OperationStatusResponseDto
 from auth.authenticate import authenticate
 from auth.hash_password import HashPassword
 from core.component.profile_component import set_config_to
 from core.service.feature_togle_service import create_contact
+from dto.features_dto import FeatureConfigDto, OperationStatusResponseDto
 
 features_router = APIRouter(tags=["Features"])
 hash_password = HashPassword()

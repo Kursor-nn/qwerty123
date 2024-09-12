@@ -1,0 +1,154 @@
+version: "3"
+
+services:
+
+  web-proxy:
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - app
+
+  app:
+    build: ./guard/app/
+    env_file:
+      - ./guard/app/.env
+    volumes:
+      - ./guard/app:/app
+      - ./guard/api:/api
+    environment:
+      - PYTHONPATH=/app:/api:/app/app/
+      - COOKIE_NAME=cookie_name
+    command: python app.py
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      database:
+        condition: service_started
+    restart: on-failure
+
+  llm-guardapi:
+    build: ./guard/guardapi/
+    hostname: llm-guardapi
+    volumes:
+      - ./guard:/app
+      - ./guard/api:/api
+      - ./guard/source/models:/models/
+      - ./guard/source/hg:/root/.cache/huggingface/
+    command: python guardapi/app.py
+    env_file:
+      - ./guard/guardapi/.env
+    environment:
+      - PYTHONPATH=/app:/api:/app/guardapi/
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    restart: on-failure
+
+  llm-guard-default-filter:
+    build: ./guard/guardapi/
+    volumes:
+      - ./guard:/app
+      - ./guard/api:/api
+      - ./guard/source/models:/models/
+      - ./guard/source/hg:/root/.cache/huggingface/
+    command: python guardapi/core/queue/rmworkers.py
+    env_file:
+      - ./guard/guardapi/.env
+    environment:
+      - PYTHONPATH=/app:/api:/app/guardapi/
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      database:
+        condition: service_started
+    restart: on-failure
+
+  llm-yandex-gpt-api-adapter:
+    build: ./guard/gptadapter/
+    hostname: llm-gpt-adapter
+    volumes:
+      - ./guard:/app
+      - ./guard/api:/api
+    command: python gptadapter/app.py
+    env_file:
+      - ./guard/gptadapter/.env
+    environment:
+      - PYTHONPATH=/app:/api:/app/gptadapter/
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    restart: on-failure
+
+  webui:
+    build: ./guard/app/
+    env_file:
+      - ./guard/app/.env
+    environment:
+      - PYTHONPATH=/api:/app:/app/api:/app/app/
+    volumes:
+      - ./guard/:/app
+    command: streamlit run app/home.py --server.port=8501 --server.address=0.0.0.0
+    depends_on:
+      app:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    restart: on-failure
+
+  rabbitmq:
+    image: rabbitmq:3.13.3-management
+    hostname: rabbitmq
+    restart: on-failure
+    env_file:
+      - ./guard/guardapi/.env
+    environment:
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit disk_free_limit 2147483648
+    volumes:
+      - ./rabbitmqdata:/var/lib/rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+
+  prometheus:
+    image: prom/prometheus:v2.36.2
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    user: "472"
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    restart: always
+
+  database:
+    image: postgres:13.3
+    hostname: database
+    env_file:
+      - ./guard/common/.env
+    volumes:
+      - ./postgresdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  prometheus_data: { }
+  grafana_data: { }

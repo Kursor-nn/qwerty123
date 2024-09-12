@@ -1,8 +1,10 @@
 import httpx
 from decouple import config
 
-from api.dto.ProfileDto import ProfileInfo
+
+
 from common_consts import BACKEND_HOST
+from dto.ProfileDto import ProfileInfo
 from pages.common.cookies import get_cookie_manager
 
 

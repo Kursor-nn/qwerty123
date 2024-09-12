@@ -3,14 +3,15 @@
 
 # DB
 ## Базовые фичи
-- insert into features(id, enabled, 'name', type) values (1, true, 'topic filters', 'filter');
-- insert into features(id, enabled, 'name', type) values (2, true, 'toxic filter', 'filter');
-- insert into features(id, enabled, 'name', type) values (3, true, 'prompt filter', 'filter');
-- insert into features(id, enabled, 'name', type) values (4, true, 'notification', 'statis');
-- insert into features(id, enabled, 'name', type) values (5, true, 'user', 'statis');
-- insert into features(id, enabled, 'name', type) values (9, true, '24 hour dynamic', 'statis');
-- insert into features(id, enabled, 'name', type) values (10, true, 'Toxic messages 24 hour dynamic', 'statis');
-- insert into features(id, enabled, 'name', type) values (11, true, 'Toxic clients', 'statis');
-- insert into features(id, enabled, 'name', type) values (12, true, 'Notifications Stats', 'statis');
-- insert into features(id, enabled, 'name', type) values (6, true, 'telegram notificaitons', 'notification');
-- insert into features(id, enabled, 'name', type) values (7, true, 'email notifications', 'notification');
+INSERT INTO features (id, enabled, "name", "type") VALUES(3, true, 'Request toxic filters', 'filter');
+INSERT INTO features (id, enabled, "name", "type") VALUES(4, true, 'notification', 'statis');
+INSERT INTO features (id, enabled, "name", "type") VALUES(5, true, 'user', 'statis');
+INSERT INTO features (id, enabled, "name", "type") VALUES(6, true, 'telegram notificaitons', 'notification');
+INSERT INTO features (id, enabled, "name", "type") VALUES(9, true, '24 hour dynamic', 'statis');
+INSERT INTO features (id, enabled, "name", "type") VALUES(10, true, 'Toxic messages 24 hour dynamic', 'statis');
+INSERT INTO features (id, enabled, "name", "type") VALUES(11, true, 'Toxic clients', 'statis');
+INSERT INTO features (id, enabled, "name", "type") VALUES(12, true, 'Notifications Stats', 'statis');
+INSERT INTO features (id, enabled, "name", "type") VALUES(13, true, 'Answer topic filters', 'filter');
+INSERT INTO features (id, enabled, "name", "type") VALUES(14, true, 'Request topic filters', 'filter');
+INSERT INTO features (id, enabled, "name", "type") VALUES(15, true, 'Answer toxic filters', 'filter');
+INSERT INTO features (id, enabled, "name", "type") VALUES(16, true, 'Recomendation mode', 'filter_mode');

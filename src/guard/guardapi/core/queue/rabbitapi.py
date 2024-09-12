@@ -1,5 +1,6 @@
 import uuid
 
+import loguru
 import pika
 from decouple import config
 
@@ -28,6 +29,9 @@ def send_message(queue: str, request: LlmRequestDto) -> str:
     channel.queue_declare(queue=queue)
     result_queue = channel.queue_declare(queue='', exclusive=True).method.queue
     correlation_id = str(uuid.uuid4())
+
+    loguru.logger.info(f"send_message: {request}")
+
     channel.basic_publish(
         exchange='',
         routing_key=queue,
