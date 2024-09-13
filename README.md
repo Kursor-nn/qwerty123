@@ -63,40 +63,44 @@ qwerty123 решение для мониторинга токсичного ко
     - модель раз
     - модель два
 
-### ***Заполнение .env файлов***
-    например заполните src/guard/common/.env и убедитесь, что ключ для взаимодействия с yandexgpt доступен как переменная YANDEX_GPT_PRIVATE_KEY в контейнере llm-yandex-gpt-api-adapter, пример можно увидеть, в src/docker-compose.yml
+### Заполнение `.env` файлов
+
+- Например заполните `src/guard/common/.env` и убедитесь, что ключ для взаимодействия с yandexgpt доступен как переменная `YANDEX_GPT_PRIVATE_KEY` в контейнере `llm-yandex-gpt-api-adapter`, пример можно увидеть, в `src/docker-compose.yml`
 
 ## Использование
-    Для запуска сервиса после вышеперечисленного достаточно следующих действий:
-    1. Выполнить запуск контейнеров с помощью:
+
+Для запуска сервиса после вышеперечисленного достаточно следующих действий:
+
+1. Выполнить запуск контейнеров с помощью:
     ```
     cd qwerty123/src
     docker compose up -d
     ```
-    Если образов контейнеров не будет, оно будут скачены и собраны.
-    2. После этого также необходимо инициализоровать базу данных, например с помощью src/guard/app/core/models/model.py или использовать liquibase, пример есть в .gitlab-ci.yml
-    3. При доступности ВМ или сервера с тестируемого устройства, можно пройти по адресу http://<ip> например, если не настроено доменное имя, и уведить WebUI.
+Если образов контейнеров не будет, оно будут скачены и собраны.
+
+2. После этого также необходимо инициализоровать базу данных, например с помощью src/guard/app/core/models/model.py или использовать liquibase, пример есть в .gitlab-ci.yml
+
+3. При доступности ВМ или сервера с тестируемого устройства, можно пройти по адресу http://<ip> например, если не настроено доменное имя, и уведить WebUI.
 
     Кроме WebUI так же доступно взаимодействие по API, Swagger доступен по http://<ip/dns-name>/swagger/
 
-    Пример использования:
-    1. Авторизация, в результате которой получается Bearer токен
+*Пример использования*:
+1. Авторизация, в результате которой получается Bearer токен
     ```
     curl --location 'http://<ip/dns-name>/api/user/signin' \
---header 'Content-Type: application/json' \
---data '{
+    --header 'Content-Type: application/json' \
+    --data '{
     "login": "test",
     "password": "test"
-}'
+    }'
     ```
-    2. Взаимодействие с API с использованием Bearer токен
+2. Взаимодействие с API с использованием Bearer токен
     ```
     curl --location 'http://<api/dns-name>/api/guard/validate' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer <token>' \
---data '{
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer <token>' \
+    --data '{
     "text": "какой-то запрос",
     "filter_type": "general_filter"
-}'
-
+    }'
     ```
