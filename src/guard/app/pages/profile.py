@@ -15,7 +15,7 @@ if not access_token:
 
 profile_info = get_profile_info()
 
-filters = [i for i in profile_info.features if "filter" in i.type == "filter"]
+filters = [i for i in profile_info.features if "filter" in i.type]
 notifications = [i for i in profile_info.features if i.type == "notification"]
 stats = [i for i in profile_info.features if i.type == "statis"]
 threshold = [i for i in profile_info.features if i.type == "threshold"]
