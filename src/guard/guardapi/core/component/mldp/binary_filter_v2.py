@@ -1,6 +1,5 @@
 import os
 
-import joblib
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
@@ -11,18 +10,18 @@ RANDOM_STATE = 42
 
 GLOBAL_MODEL = None
 GLOBAL_BERT_MODEL = None
-PATH_2_MODEL = "/tmp/models/binary_filter_v2/binary"
+PATH_2_MODEL = "/models/binary_class_v2"
+
 
 def load_model():
     global GLOBAL_MODEL
     if GLOBAL_MODEL is None:
-        GLOBAL_MODEL = AutoModelForSequenceClassification.from_pretrained(PATH_2_MODEL, num_labels=7, ignore_mismatched_sizes=True)
+        GLOBAL_MODEL = AutoModelForSequenceClassification.from_pretrained(PATH_2_MODEL, ignore_mismatched_sizes=True)
 
     return GLOBAL_MODEL
 
 
-#model = AutoModelForSequenceClassification.from_pretrained("apanc/russian-inappropriate-messages")
-tokenizer = AutoTokenizer.from_pretrained("apanc/russian-inappropriate-messages")
+tokenizer = AutoTokenizer.from_pretrained(PATH_2_MODEL)
 
 
 def check_toxic_2(message, model, tokenizer, device="cpu"):
@@ -33,7 +32,7 @@ def check_toxic_2(message, model, tokenizer, device="cpu"):
 
     with torch.no_grad():
         tokens = tokenizer(message, max_length=512, truncation=True, return_tensors="pt")
-        return int(torch.argmax(model(**tokens).logits, dim=1))
+        return mapper[int(torch.argmax(model(**tokens).logits, dim=1))]
 
 
 def check_toxic(text):

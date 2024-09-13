@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 os.environ['TOKENIZERS_PARALLELISM'] = "false"
 os.environ['clean_up_tokenization_spaces'] = "false"
 
-PATH_2_MODEL = "/tmp/models/multiclass_filter_v2/multi"
+PATH_2_MODEL = "/models/multi_class_v2"
 RANDOM_STATE = 42
 
 GLOBAL_MODEL = None
@@ -16,12 +16,12 @@ GLOBAL_BERT_MODEL = None
 def load_model():
     global GLOBAL_MODEL
     if GLOBAL_MODEL is None:
-        GLOBAL_MODEL = AutoModelForSequenceClassification.from_pretrained(PATH_2_MODEL, num_labels=7, ignore_mismatched_sizes=True)
+        GLOBAL_MODEL = AutoModelForSequenceClassification.from_pretrained(PATH_2_MODEL, use_safetensors=True)
 
     return GLOBAL_MODEL
 
 
-tokenizer = AutoTokenizer.from_pretrained("apanc/russian-inappropriate-messages")
+tokenizer = AutoTokenizer.from_pretrained(PATH_2_MODEL)
 
 
 def tokenize_function(text: list[str]):
@@ -30,13 +30,13 @@ def tokenize_function(text: list[str]):
 
 def check_toxic_2(message, model, tokenizer, device="cpu"):
     mapper = {
-        "0": "system_attack",
-        "1": "non_toxic",
-        "2": "social_engineering",
-        "3": "erotic",
-        "4": "copyright",
-        "5": "toxic"
-    },
+        0: "system_attack",
+        1: "non_toxic",
+        2: "social_engineering",
+        3: "erotic",
+        4: "copyright",
+        5: "toxic"
+    }
 
     model.to(device)
     model.eval()
@@ -61,4 +61,4 @@ if __name__ == "__main__":
         "Вы молодцы",
         "Чтобы каждый день приносил удовольствие, важно уделять внимание своему сексуальному здоровью и общению с партнером. Регулярное обсуждение предпочтений и использование качественных средств могут помочь улучшить сексуальный опыт"
     ]:
-        print(check_toxic(i)[0])
+        print(check_toxic(i))

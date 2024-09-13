@@ -15,7 +15,7 @@ if not access_token:
 
 profile_info = get_profile_info()
 
-filters = [i for i in profile_info.features if i.type == "filter" or i.type == "filter_mode"]
+filters = [i for i in profile_info.features if "filter" in i.type == "filter"]
 notifications = [i for i in profile_info.features if i.type == "notification"]
 stats = [i for i in profile_info.features if i.type == "statis"]
 threshold = [i for i in profile_info.features if i.type == "threshold"]
@@ -46,17 +46,17 @@ with home_tab:
 with filters_tab:
     input_columns, output_columns = st.columns(2)
 
-    input_filters = [i for i in filters if "Request" in i.name]
-    output_filters = [i for i in filters if "Answer" in i.name]
+    binary_filters = [i for i in filters if "binary_filter" in i.type]
+    multiclass_filter = [i for i in filters if "multi_filter" in i.type]
 
     another_filters = [i for i in filters if i.type == "filter_mode"]
     build_check_box_for("Filter Modes", another_filters)
 
     with input_columns:
-        build_check_box_for("Input filters List", input_filters)
+        build_check_box_for("Toxic blocker filter list", binary_filters)
 
     with output_columns:
-        build_check_box_for("Output filters List", output_filters)
+        build_check_box_for("Content topic detectors", multiclass_filter)
 
 with notifications_tab:
     build_check_box_for("Notifications", notifications)

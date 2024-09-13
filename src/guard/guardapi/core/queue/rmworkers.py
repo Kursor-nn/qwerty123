@@ -2,11 +2,11 @@ import json
 import logging
 
 import pika
+from core.component.mldp import binary_filter_v2, topic_detector_v2
 from decouple import config
 from pydantic import ValidationError
 
 from common_consts import RABBIT_QUEUE
-from core.component import catboost_bert_toxic_service, general_check_text_service, output_topic_detector_service
 from dto.message_request import ValidationMessage
 
 rabbitmq_connection_string = pika.ConnectionParameters(
@@ -34,21 +34,16 @@ def prepare_data(ch, method, properties, body):
         info = ValidationMessage(**json.loads(body.decode('utf-8')))
         results = {}
         is_toxic = False
-        for i in info.filters:
-            if i == "toxic_filter":
-                toxic_status, text = catboost_bert_toxic_service.check_toxic(info.text)
-                results[i] = toxic_status
+        for filter in info.filters:
+            if filter == "general_filter":
+                toxic_status, text = binary_filter_v2.check_toxic(info.text)
+                results[filter] = toxic_status
                 is_toxic = is_toxic or toxic_status
-                logging.info(f"{i} : {is_toxic} {toxic_status}")
-            elif i == "general_filter":
-                toxic_status, text = general_check_text_service.check_toxic(info.text)
-                results[i] = toxic_status
-                is_toxic = is_toxic or toxic_status
-                logging.info(f"{i} : {is_toxic} {toxic_status}")
-            elif i == "topic_detector":
-                topic, text = output_topic_detector_service.check_toxic(info.text)
-                results[i] = topic
-                logging.info(f"{i} : {is_toxic} {topic}")
+                logging.info(f"{filter} : {is_toxic} {toxic_status}")
+            elif filter == "topic_detector":
+                topic, text = topic_detector_v2.check_toxic(info.text)
+                results[filter] = topic
+                logging.info(f"{filter} : {is_toxic} {topic}")
 
         return_results(ch, method, properties, is_toxic, results)
     except ValidationError as e:
