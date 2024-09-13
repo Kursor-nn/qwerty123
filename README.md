@@ -60,8 +60,10 @@ qwerty123 решение для мониторинга токсичного ко
 
 2. **Загрузка и установка моделей**
     Поскольку модели являются крупными файлами и их нецелесообразно хранить в git-репозитории, вам необходимо загрузить их отдельно. Для этого надо будет добавить ссылки:
-    - модель раз
-    - модель два
+    - [модель раз binary_class_v2](https://drive.google.com/drive/u/0/folders/1TAUbt-5WsgVlikBKvrr37_hMQfqlmIvZ)
+    - [модель два multi_class_v2](https://drive.google.com/drive/u/0/folders/1cldfOs5R2_1aileYEbRkyGo3gb9aBAJ5)
+
+    И разместить директории по пути `src/guard/source/models`
 
 ### Заполнение `.env` файлов
 
