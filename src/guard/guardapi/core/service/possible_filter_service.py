@@ -1,6 +1,6 @@
-from core.component.profile_info_component import get_profile_info
 from loguru import logger
 
+from core.component.profile_info_component import get_profile_info
 from dto.ProfileDto import ProfileInfo
 
 mapper = {

@@ -15,7 +15,7 @@ def __build_headers():
     return headers
 
 
-def get_profile_info() -> ProfileInfo:
+def get_profile_info_for_user() -> ProfileInfo:
     response = httpx.get(url=f"{config(BACKEND_HOST)}/api/user/profile", headers=__build_headers())
     return ProfileInfo(**response.json())
 

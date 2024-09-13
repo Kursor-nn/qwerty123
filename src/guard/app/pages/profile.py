@@ -1,6 +1,6 @@
 import streamlit as st
 
-from pages.api.user_profile import get_profile_info, toggle_feature, set_config
+from pages.api.user_profile import get_profile_info_for_user, toggle_feature, set_config
 from pages.common.cookies import get_cookie_manager
 from pages.common.navigation import make_sidebar
 
@@ -13,7 +13,7 @@ access_token = get_cookie_manager().get("access_token")
 if not access_token:
     st.switch_page("home.py")
 
-profile_info = get_profile_info()
+profile_info = get_profile_info_for_user()
 
 filters = [i for i in profile_info.features if "filter" in i.type]
 notifications = [i for i in profile_info.features if i.type == "notification"]
