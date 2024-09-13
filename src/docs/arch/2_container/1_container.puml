@@ -1,10 +1,11 @@
 @startuml
 !include ../../common/C4_Container.puml
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
 
-Person(user, "User", "user", $sprite="user")
-System_Ext(prometheus, "Monitoring System", "Prometheus")
-System_Ext(llm, "LLM", "Extrnal LLM")
-System_Ext(prometheus, "Prometheus", "Prometheus")
+Person(user, "Client", "Person or bot", $sprite="users")
+System_Ext(prometheus, "Monitoring System", "Prometheus", $sprite="prometheus")
+System_Ext(llm, "LLM", "External LLM", $sprite="AI")
 System_Ext(telegram, "Telegram", "Notification to telegram service")
 System_Ext(email, "Email", "Notification to email")
 
@@ -16,7 +17,7 @@ Container_Boundary(core_system, "LLM Guard"){
 
 
     Container_Boundary(api_gateway_container, "API Gateway", "NGINX") {
-        Container(nginx, "User Data", "Nginx", "Single API", $sprite="java")
+        Container(nginx, "Single Access point", "Nginx", "Single API", $sprite="java")
     }
 
     Container_Boundary(user_container, "User data") {
@@ -34,7 +35,7 @@ Container_Boundary(core_system, "LLM Guard"){
     }
 
     Container_Boundary(filter_api_container, "LLM Request Filter API") {
-        Container(filter_api_service, "Filter API Backend", "Python/FastAPI", "Validate and filter requests")
+        Container(filter_api_service, "API Backend", "Python/FastAPI", "Validate and filter requests")
         Rel(filter_api_service, request_mqm, "Sync Read/Write")
     }
 
@@ -59,8 +60,8 @@ Rel(nginx, filter_api_service, "HTTP/HTTPS", "Read/Write")
 Rel(request_mqm, request_filter_containers, "Read/Write")
 
 Rel(filter_api_service, llm_adapter_container, "Read/Write")
-Rel_L(filter_api_service, prometheus, "Read/Write")
-Rel_L(llm_adapter_container, llm, "Read/Write")
+Rel_R(filter_api_service, prometheus, "Read/Write")
+Rel(llm_adapter_service, llm, "Read/Write")
 
 Rel(notification_monitoring_service, telegram, "Write")
 Rel(adapter_notification_service, email, "Write")
