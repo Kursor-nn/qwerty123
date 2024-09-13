@@ -104,3 +104,10 @@ qwerty123 решение для мониторинга токсичного ко
     "filter_type": "general_filter"
     }'
     ```
+
+## Архитектура
+#### Контейнеров
+![1_container.png](src%2Fdocs%2Farch%2F2_container%2F1_container.png)
+#### Сваггер
+[swagger.yaml](src%2Fdocs%2Fswagger.yaml)
+
