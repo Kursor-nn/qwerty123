@@ -65,11 +65,11 @@ qwerty123 решение для мониторинга токсичного ко
     - [модель раз binary_class_v2](https://drive.google.com/drive/u/0/folders/1TAUbt-5WsgVlikBKvrr37_hMQfqlmIvZ)
     - [модель два multi_class_v2](https://drive.google.com/drive/u/0/folders/1cldfOs5R2_1aileYEbRkyGo3gb9aBAJ5)
 
-    И разместить директории по пути `src/guard/source/models`
+    И разместить директории по пути (`src/guard/source/models`)[src/guard/source/models]
 
 ### Заполнение `.env` файлов
 
-- Например заполните `src/guard/common/.env` и убедитесь, что ключ для взаимодействия с yandexgpt доступен как переменная `YANDEX_GPT_PRIVATE_KEY` в контейнере `llm-yandex-gpt-api-adapter`, пример можно увидеть, в `src/docker-compose.yml`
+- Например заполните (`src/guard/common/.env`)[src/guard/common/.env] и убедитесь, что ключ для взаимодействия с yandexgpt доступен как переменная `YANDEX_GPT_PRIVATE_KEY` в контейнере `llm-yandex-gpt-api-adapter`, пример можно увидеть, в `src/docker-compose.yml`
 
 ## Использование
 
