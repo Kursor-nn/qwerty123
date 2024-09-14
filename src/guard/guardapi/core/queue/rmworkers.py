@@ -56,6 +56,7 @@ def prepare_data(ch, method, properties, body):
             properties=pika.BasicProperties(correlation_id=correlation_id),
             body=json.dumps({"is_toxic": False, "message": "validation error"})
         )
+        ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
         correlation_id = properties.correlation_id
         reply_to = properties.reply_to
@@ -66,7 +67,7 @@ def prepare_data(ch, method, properties, body):
             properties=pika.BasicProperties(correlation_id=correlation_id),
             body=json.dumps({"is_toxic": False, "message": "common error"})
         )
-
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
 def return_results(ch, method, properties, toxic_status, text):
     correlation_id = properties.correlation_id
@@ -79,6 +80,7 @@ def return_results(ch, method, properties, toxic_status, text):
 
         body=json.dumps({"is_toxic": toxic_status, "details": text})
     )
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 def callback(ch, method, properties, body):
