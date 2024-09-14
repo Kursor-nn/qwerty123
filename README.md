@@ -70,6 +70,7 @@ qwerty123 решение для мониторинга токсичного ко
 ### Заполнение `.env` файлов
 
 - Например заполните [`src/guard/common/.env`](src/guard/common/.env) и убедитесь, что ключ для взаимодействия с yandexgpt доступен как переменная `YANDEX_GPT_PRIVATE_KEY` в контейнере `llm-yandex-gpt-api-adapter`, пример можно увидеть, в [`src/docker-compose.yml`](src/docker-compose.yml)
+- Кроме этого должны быть заполнены env файлы для других микросервисов, с переменными, описанными в [`src/docker-compose.yml`](src/docker-compose.yml) согласно микросервису и его env переменным
 
 ## Использование
 
