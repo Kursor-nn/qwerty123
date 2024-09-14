@@ -38,7 +38,7 @@ def build_check_box_for(label, values):
                     on_change=change_value_for_stats(item.feature_type_id, not item.enabled))
 
 
-home_tab, filters_tab, notifications_tab, threshold_tab = st.tabs(["Home page configuration", "Filters List", "Notifications", "Threshold"])
+home_tab, filters_tab, notifications_tab, threshold_tab = st.tabs(["Home page configuration", "Features List", "Notifications", "Threshold"])
 
 with home_tab:
     build_check_box_for("Home page configuration", stats)
