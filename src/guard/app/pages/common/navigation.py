@@ -41,10 +41,10 @@ def make_sidebar():
                                    "topic_detector" in i["details"]]
 
                     if len(output_tags) != 0:
-                        text = text + "\n\n Возможные темы ответа: " + ', '.join(output_tags)
+                        text = text + "\n\n [[Возможные темы ответа: " + ', '.join(output_tags) + ']]'
 
                     if len(input_tags) != 0:
-                        text = text + "\n\n Возможные темы вопроса: " + ', '.join(input_tags)
+                        text = text + "\n\n [[Возможные темы вопроса: " + ', '.join(input_tags) + ']]'
 
                     st.session_state.messages.append({"role": "user", "content": prompt})
                     st.session_state.messages.append({"role": "AI", "content": text})

@@ -28,7 +28,7 @@ def create_telegram_contact(contact_name: str, chat_id: str):
             "chatid": str(chat_id),
             "disable_notification": False,
             "disable_web_page_preview": False,
-            "message": "демократия в опасаности =)",
+            "message": "Превышен порог уровня токсичности. Необходимо проверить модель.",
             "protect_content": False
         },
         "disableResolveMessage": False

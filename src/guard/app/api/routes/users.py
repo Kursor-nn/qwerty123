@@ -8,11 +8,13 @@ from dto.ProfileDto import ProfileInfo
 from dto.features_dto import FeatureToggleDto
 from dto.user_dto import NewUser, SuccessResponse, TokenResponse, SigninRequest
 
+
+import core.service.user_service
 user_router = APIRouter(tags=["User"])
 
 
 @user_router.post("/register", response_model=SuccessResponse)
-async def create_new_user(
+async def registration(
         user: NewUser
 ) -> SuccessResponse:
     return create_new_user(user.login, user.password, user.email)
