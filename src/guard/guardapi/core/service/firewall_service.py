@@ -23,7 +23,7 @@ def validate(user: str, text: str, rec_mode: bool, input_filters: [str], output_
         response: LlmAnswerDto = llm_api.ask_yandex(text, user)
         output: ValidationResultMessage = validate_component.validate(user, output_filters, response.text)
 
-        llm_answer = "неприемлемы ответ от AI" if (output.is_toxic and not rec_mode) else response.text
+        llm_answer = "неприемлемый ответ от AI заблокирован" if (output.is_toxic and not rec_mode) else response.text
 
         return ValidationResultsDto(is_toxic=results.is_toxic, question=text, llm_answer=llm_answer, details=[],
                                     answer_validation=[FilterResultDto(is_toxic=output.is_toxic, details=output.details)],
