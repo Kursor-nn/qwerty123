@@ -34,6 +34,7 @@ def return_results(ch, method, properties, response: LlmAnswerDto):
         properties=pika.BasicProperties(correlation_id=correlation_id),
         body=response.model_dump_json()
     )
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 def callback(ch, method, properties, body):
